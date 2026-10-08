@@ -141,14 +141,14 @@ def context():
 
 def containers():
     d = Diagram("c4-containers.svg", "mcl-jobs containers", 1000, 600)
-    d.bound(24, 40, 620, 420, "beam00 [docker, reconciled from macula-fleet]")
+    d.bound(24, 40, 620, 420, "A lab box [docker, reconciled from the fleet repository]")
     d.box("b-sys", 44, 76, 580, 120, "mcl-jobs service", "[mcl_om mesh service, OCI image, OTP 28 release]",
           ["Boots as an mcl_om service: identity key, realm admission, a mesh pool through",
            "two pinned stations, Org/info and /health. Opens its own reckon-db store first;",
            "the CMD divisions run against it."])
     d.box("b-cmp", 44, 220, 280, 112, "Identity key", "[Named volume]",
           ["The node's identity key: its node", "id, the one the realm admits"])
-    d.box("b-cmp", 344, 220, 280, 112, "Event store", "[/bulk0/mcl-jobs mounted at /data]",
+    d.box("b-cmp", 344, 220, 280, 112, "Event store", "[data drive, mounted at /data]",
           ["mcl_jobs_store: every profile and", "organisation stream. Survives a", "recreate only because it is mounted"])
     d.box("b-cmp", 44, 356, 580, 84, "/health", "[Unix socket /run/mcl/health.sock]",
           ["The container healthcheck; internal to the box, not on the mesh."])
@@ -157,7 +157,7 @@ def containers():
     d.box("b-mac", 690, 190, 286, 88, "macula-realm", "[Macula infrastructure]",
           ["Admission; trust anchor"])
     d.box("b-ext", 690, 300, 286, 96, "ghcr.io", "[External system]",
-          ["The signed image, pinned by digest", "in macula-fleet"])
+          ["The signed image, pinned by digest", "in the fleet repository"])
     d.box("b-later", 44, 476, 580, 60, "query_jobs read model", "[planned: PRJ + QRY]", [])
     d.edge("M624 124H690"); d.text("t-rel", 657, 116, "joins", anchor="middle")
     d.edge("M624 170H660V234H690"); d.text("t-rel", 668, 206, "claim", anchor="middle", rotate=-90)

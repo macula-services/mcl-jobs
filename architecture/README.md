@@ -24,8 +24,8 @@ change the script, run it, and look at the result before committing.
 
 ![mcl-jobs containers](../assets/c4-containers.svg)
 
-One OTP release in one image, run under docker on beam00, which reconciles
-from macula-fleet, with its store on `/bulk0/mcl-jobs`. What `mcl_om` provides: the node identity key on a named
+One OTP release in one image, run under docker on a lab box that reconciles
+from the fleet repository, with its store on the box's data drive. What `mcl_om` provides: the node identity key on a named
 volume, realm admission, a mesh pool through two pinned stations, `Org/info`,
 and `/health` on the Unix socket `/run/mcl/health.sock` (the container
 healthcheck, never on the mesh). What the service adds: its own reckon-db store,
