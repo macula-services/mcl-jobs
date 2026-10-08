@@ -5,12 +5,10 @@
 %% watching. The `-behaviour' attribute below is what turns that into a compile
 %% error instead, and the generated test suite guards the attribute itself.
 %%
-%% IT ANNOUNCES NOTHING AND ASKS FOR NOTHING, on purpose. A service that does
-%% nothing yet has no capability to offer and needs no authority from the realm.
+%% IT ANNOUNCES ITS FOUR LIFECYCLE PROCEDURES AND ASKS FOR NO TOPIC AUTHORITY.
 %% Advertising a capability before it exists puts a lie on the mesh that another
-%% service can find and call. Both lists grow when the thing they name exists,
-%% and a generated test fails when they change, so growing them is a deliberate
-%% act rather than a comment someone forgot.
+%% service can find and call, so each entry names a responder that answers, and
+%% a test pins the list so growing it is a deliberate act.
 -module(mcl_jobs_service).
 
 -behaviour(mcl_om_service).
@@ -53,11 +51,23 @@ stop(_State) -> ok.
 health() -> ok.
 
 %% WHAT THIS SERVICE ANNOUNCES IT CAN DO. Other services find this one by these
-%% names, so each entry is a promise that something answers.
-capabilities() -> [].
+%% names, so each entry is a promise that something answers. Each is a CALL
+%% that acts as its caller (the node id that signed it) and replies #{} or
+%% #{reason => Why}; README, "Procedures", is the contract.
+capabilities() ->
+    [#{name => <<"initiate_profile">>, version => 1,
+       handler => {initiate_profile_responder, []}},
+     #{name => <<"archive_profile">>, version => 1,
+       handler => {archive_profile_responder, []}},
+     #{name => <<"initiate_organisation">>, version => 1,
+       handler => {initiate_organisation_responder, []}},
+     #{name => <<"archive_organisation">>, version => 1,
+       handler => {archive_organisation_responder, []}}].
 
 %% THE AUTHORITY THIS SERVICE ASKS THE REALM FOR, and deliberately nothing more.
-%% Ask for exactly the topics you publish and subscribe to. Popped, an attacker
+%% Ask for exactly the topics you publish and subscribe to. mcl-jobs publishes
+%% and subscribes to none: its procedures are CALLs, served under the realm's
+%% org-wide provider grant for mcl-jobs, so it asks for nothing. Popped, an attacker
 %% gains precisely this and no more, which is the whole point of listing it.
 %%
 %% The scope is claimed now because it is the namespace every later resource

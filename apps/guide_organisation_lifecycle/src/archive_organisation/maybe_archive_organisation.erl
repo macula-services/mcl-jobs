@@ -38,7 +38,9 @@ handled({ok, Cmd}) -> handle(Cmd);
 handled({error, _} = E) -> E.
 
 built(ok, Cmd) ->
-    Event = organisation_archived_v1:new(#{organisation_id => archive_organisation_v1:get_organisation_id(Cmd)}),
+    Event = organisation_archived_v1:new(#{
+        organisation_id => archive_organisation_v1:get_organisation_id(Cmd),
+        archived_by => archive_organisation_v1:get_archived_by(Cmd)}),
     {ok, [organisation_archived_v1:to_map(Event)]};
 built({error, _} = E, _Cmd) ->
     E.

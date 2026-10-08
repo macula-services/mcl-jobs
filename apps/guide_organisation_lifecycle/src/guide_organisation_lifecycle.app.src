@@ -6,6 +6,10 @@
         kernel,
         stdlib,
         crypto,
+        %% The responders implement macula_response and read their payloads
+        %% through mcl_om_wire.
+        macula,
+        mcl_om,
         %% The desks dispatch through evoq into mcl_jobs_store, which mcl_jobs
         %% opens before the service boots.
         evoq,

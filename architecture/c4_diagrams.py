@@ -119,21 +119,21 @@ class Diagram:
 def context():
     d = Diagram("c4-context.svg", "mcl-jobs system context", 1000, 560)
     d.box("b-per", 40, 30, 270, 96, "Citizen", "[Person]",
-          ["Someone on the mesh with a profile:", "their own, not a platform's"], person=True)
+          ["Someone on the mesh with a profile:", "their own, keyed by their node key"], person=True)
     d.box("b-per", 690, 30, 270, 96, "Organisation", "[Person or group]",
-          ["A company, cooperative or project", "that people work with"], person=True)
+          ["Initiated by one node, the only", "one that may archive it"], person=True)
     d.box("b-sys", 365, 190, 270, 120, "mcl-jobs", "[mcl_om mesh service]",
-          ["Keeps the life of each profile and", "each organisation as events in its", "own store"])
+          ["Four lifecycle procedures over the", "mesh; each profile and organisation", "kept as events in its own store"])
     d.box("b-mac", 40, 190, 270, 120, "macula-realm", "[Macula infrastructure]",
           ["Admits the service: its identity", "claim, its org mcl-jobs, the trust", "anchor every caller verifies"])
     d.box("b-ext", 690, 190, 270, 120, "Other mesh services", "[External systems]",
           ["Anything on the mesh that asks", "mcl-jobs/info what it is, which", "version, how healthy"])
     d.box("b-mac", 365, 400, 270, 110, "Macula mesh", "[Macula infrastructure]",
           ["Two pinned stations are its entry", "points (QUIC); procedures and", "the DHT"])
-    d.edge("M175 126V160H420V190", later=True); d.text("t-rel", 300, 152, "initiates, archives a profile (planned)", anchor="middle")
-    d.edge("M825 126V160H580V190", later=True); d.text("t-rel", 760, 152, "initiates, archives (planned)", anchor="middle")
+    d.edge("M175 126V160H420V190"); d.text("t-rel", 300, 152, "initiates, archives own profile", anchor="middle")
+    d.edge("M825 126V160H580V190"); d.text("t-rel", 760, 152, "initiates, archives its own", anchor="middle")
     d.edge("M365 250H310"); d.text("t-rel", 337, 240, "boot", anchor="middle"); d.text("t-rel", 337, 272, "claim", anchor="middle")
-    d.edge("M500 310V400"); d.text("t-rel", 508, 360, "joins, answers mcl-jobs/info")
+    d.edge("M500 310V400"); d.text("t-rel", 508, 360, "joins, answers mcl-jobs/*")
     d.edge("M825 310V455H635"); d.text("t-rel", 833, 380, "calls mcl-jobs/info")
     d.legend(530, boundary=False)
     d.write()
@@ -141,14 +141,14 @@ def context():
 
 def containers():
     d = Diagram("c4-containers.svg", "mcl-jobs containers", 1000, 600)
-    d.bound(24, 40, 620, 420, "A fleet box [docker, reconciled from macula-fleet]")
+    d.bound(24, 40, 620, 420, "beam00 [docker, reconciled from macula-fleet]")
     d.box("b-sys", 44, 76, 580, 120, "mcl-jobs service", "[mcl_om mesh service, OCI image, OTP 28 release]",
           ["Boots as an mcl_om service: identity key, realm admission, a mesh pool through",
            "two pinned stations, Org/info and /health. Opens its own reckon-db store first;",
            "the CMD divisions run against it."])
     d.box("b-cmp", 44, 220, 280, 112, "Identity key", "[Named volume]",
           ["The node's identity key: its node", "id, the one the realm admits"])
-    d.box("b-cmp", 344, 220, 280, 112, "Event store", "[Volume /data, MCL_DATA_DIR]",
+    d.box("b-cmp", 344, 220, 280, 112, "Event store", "[/bulk0/mcl-jobs mounted at /data]",
           ["mcl_jobs_store: every profile and", "organisation stream. Survives a", "recreate only because it is mounted"])
     d.box("b-cmp", 44, 356, 580, 84, "/health", "[Unix socket /run/mcl/health.sock]",
           ["The container healthcheck; internal to the box, not on the mesh."])
@@ -172,15 +172,15 @@ def components():
     d = Diagram("c4-components.svg", "mcl-jobs components", 1000, 720)
     d.bound(16, 40, 968, 490, "mcl-jobs service [Container]")
     d.box("b-cmp", 32, 70, 456, 100, "mcl_jobs_service", "[mcl_om_service module]",
-          ["The six-callback contract. mcl_om adds", "mcl-jobs/info and /health; announces nothing else"], code=True)
+          ["The six-callback contract: announces the four", "procedures; mcl_om adds mcl-jobs/info and /health"], code=True)
     d.box("b-cmp", 512, 70, 456, 100, "mcl_jobs_app", "[OTP application]",
           ["Opens mcl_jobs_store and its evoq", "subscription, then mcl_om:boot/1"], code=True)
     d.box("b-sys", 32, 194, 456, 150, "guide_profile_lifecycle", "[CMD division]",
-          ["Desks initiate_profile, archive_profile.", "profile_aggregate: one stream per citizen DID,",
-           "status in bit flags. Initiated once; archived", "only when initiated, and only once."], code=True)
+          ["Desks initiate_profile, archive_profile, each with", "its mcl-jobs/* responder acting as the caller.",
+           "profile_aggregate: one stream per caller node id;", "initiated once, archived only once, if initiated."], code=True)
     d.box("b-sys", 512, 194, 456, 150, "guide_organisation_lifecycle", "[CMD division]",
-          ["Desks initiate_organisation, archive_organisation.", "organisation_aggregate: one stream per",
-           "organisation id, with its name; the same", "rules as a profile."], code=True)
+          ["Desks initiate_organisation, archive_organisation,", "with their responders. organisation_aggregate:",
+           "id, name, initiator; only the initiator archives,", "once. Otherwise the rules of a profile."], code=True)
     d.box("b-cmp", 32, 390, 456, 120, "evoq, reckon_evoq", "[CQRS framework, adapter]",
           ["Routes each command to its aggregate process,", "replays the stream, appends the event"], code=True)
     d.box("b-cmp", 512, 390, 456, 120, "mcl_jobs_store", "[reckon-db store]",
@@ -189,7 +189,7 @@ def components():
     d.edge("M740 344V366H400V390"); d.text("t-rel", 600, 360, "dispatch", anchor="middle")
     d.edge("M488 450H512"); d.text("t-rel", 500, 440, "appends", anchor="middle")
     d.bound(16, 550, 968, 120, "Planned, not built")
-    d.box("b-later", 32, 580, 300, 76, "Mesh procedures", "[planned]", ["Citizens call the desks"])
+    d.box("b-later", 32, 580, 300, 76, "Profile content", "[later]", ["Headline, experience, skills"])
     d.box("b-later", 350, 580, 300, 76, "query_jobs", "[planned: PRJ + QRY]", ["Profiles and organisations to read"])
     d.box("b-later", 668, 580, 300, 76, "Appointments", "[later]", ["A profile acting for an organisation"])
     d.legend(690)

@@ -50,19 +50,19 @@
 <text class="t-name" x="84" y="58">Citizen</text>
 <text class="t-type" x="84" y="76">[Person]</text>
 <text class="t-desc" x="56" y="100">Someone on the mesh with a profile:</text>
-<text class="t-desc" x="56" y="116">their own, not a platform's</text>
+<text class="t-desc" x="56" y="116">their own, keyed by their node key</text>
 <rect class="b-per" x="690" y="30" width="270" height="96" rx="10"/>
 <circle class="head" cx="716" cy="54" r="9"/>
 <text class="t-name" x="734" y="58">Organisation</text>
 <text class="t-type" x="734" y="76">[Person or group]</text>
-<text class="t-desc" x="706" y="100">A company, cooperative or project</text>
-<text class="t-desc" x="706" y="116">that people work with</text>
+<text class="t-desc" x="706" y="100">Initiated by one node, the only</text>
+<text class="t-desc" x="706" y="116">one that may archive it</text>
 <rect class="b-sys" x="365" y="190" width="270" height="120" rx="10"/>
 <text class="t-name" x="381" y="218">mcl-jobs</text>
 <text class="t-type" x="381" y="236">[mcl_om mesh service]</text>
-<text class="t-desc" x="381" y="260">Keeps the life of each profile and</text>
-<text class="t-desc" x="381" y="276">each organisation as events in its</text>
-<text class="t-desc" x="381" y="292">own store</text>
+<text class="t-desc" x="381" y="260">Four lifecycle procedures over the</text>
+<text class="t-desc" x="381" y="276">mesh; each profile and organisation</text>
+<text class="t-desc" x="381" y="292">kept as events in its own store</text>
 <rect class="b-mac" x="40" y="190" width="270" height="120" rx="10"/>
 <text class="t-name" x="56" y="218">macula-realm</text>
 <text class="t-type" x="56" y="236">[Macula infrastructure]</text>
@@ -81,15 +81,15 @@
 <text class="t-desc" x="381" y="470">Two pinned stations are its entry</text>
 <text class="t-desc" x="381" y="486">points (QUIC); procedures and</text>
 <text class="t-desc" x="381" y="502">the DHT</text>
-<path class="edge-later" d="M175 126V160H420V190" marker-end="url(#a)"/>
-<text class="t-rel" x="300" y="152" text-anchor="middle">initiates, archives a profile (planned)</text>
-<path class="edge-later" d="M825 126V160H580V190" marker-end="url(#a)"/>
-<text class="t-rel" x="760" y="152" text-anchor="middle">initiates, archives (planned)</text>
+<path class="edge" d="M175 126V160H420V190" marker-end="url(#a)"/>
+<text class="t-rel" x="300" y="152" text-anchor="middle">initiates, archives own profile</text>
+<path class="edge" d="M825 126V160H580V190" marker-end="url(#a)"/>
+<text class="t-rel" x="760" y="152" text-anchor="middle">initiates, archives its own</text>
 <path class="edge" d="M365 250H310" marker-end="url(#a)"/>
 <text class="t-rel" x="337" y="240" text-anchor="middle">boot</text>
 <text class="t-rel" x="337" y="272" text-anchor="middle">claim</text>
 <path class="edge" d="M500 310V400" marker-end="url(#a)"/>
-<text class="t-rel" x="508" y="360">joins, answers mcl-jobs/info</text>
+<text class="t-rel" x="508" y="360">joins, answers mcl-jobs/*</text>
 <path class="edge" d="M825 310V455H635" marker-end="url(#a)"/>
 <text class="t-rel" x="833" y="380">calls mcl-jobs/info</text>
 <rect class="b-sys" x="24" y="530" width="22" height="14" rx="3"/>

@@ -65,11 +65,15 @@ info_version_matches_the_application_test() ->
 health_is_green_test() ->
     ?assertEqual(ok, ?SERVICE:health()).
 
-%% An empty list is the correct answer for a service that does nothing yet. The
-%% assertion is here so that adding a capability breaks a test and makes someone
-%% write down what the service can now actually do.
-announces_no_capability_yet_test() ->
-    ?assertEqual([], ?SERVICE:capabilities()).
+%% The four lifecycle procedures and nothing else, each served by a module that
+%% implements macula_response. Changing the list breaks this test on purpose.
+announces_the_four_lifecycle_procedures_test() ->
+    Caps = ?SERVICE:capabilities(),
+    ?assertEqual([<<"initiate_profile">>, <<"archive_profile">>,
+                  <<"initiate_organisation">>, <<"archive_organisation">>],
+                 [N || #{name := N} <- Caps]),
+    [?assert(lists:member({behaviour, [macula_response]}, M:module_info(attributes)))
+     || #{handler := {M, _}} <- Caps].
 
 identity_spec_has_the_shape_mcl_om_expects_test() ->
     #{scope := Scope, actions := Actions,
@@ -79,12 +83,10 @@ identity_spec_has_the_shape_mcl_om_expects_test() ->
     ?assert(is_list(Resources)),
     ?assert(is_integer(Ttl) andalso Ttl > 0).
 
-%% A resource this service is not authorised for is a publish the realm would
-%% refuse once UCAN delegation lands. Asking for nothing and claiming nothing
-%% must stay in step, so the two are asserted together.
-authority_matches_what_is_announced_test() ->
+%% Its procedures are CALLs under the org-wide provider grant; it publishes and
+%% subscribes to nothing, so it asks the realm for no topic authority.
+asks_for_no_topic_authority_test() ->
     #{actions := Actions, resources := Resources} = ?SERVICE:identity_spec(),
-    ?assertEqual([], ?SERVICE:capabilities()),
     ?assertEqual([], Actions),
     ?assertEqual([], Resources).
 

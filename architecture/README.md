@@ -13,9 +13,9 @@ change the script, run it, and look at the result before committing.
 
 | Element | Role |
 |---------|------|
-| mcl-jobs | An `mcl_om` mesh service. Keeps the life of each profile and each organisation as events in its own store. |
-| Citizen | Someone on the mesh with a profile. Reaching the desks over the mesh is planned, not built. |
-| Organisation | A company, cooperative or project. A profile appointed to act for one (a recruiter) is later work. |
+| mcl-jobs | An `mcl_om` mesh service. Four lifecycle procedures (`mcl-jobs/initiate_profile`, `archive_profile`, `initiate_organisation`, `archive_organisation`); each profile and organisation kept as events in its own store. |
+| Citizen | Someone on the mesh with a profile, keyed by their node key. Initiates and archives only their own. |
+| Organisation | A company, cooperative or project, initiated by one node, the only one that may archive it. A profile appointed to act for one (a recruiter) is later work. |
 | macula-realm | Admits the service: its identity claim, its org `mcl-jobs`, the trust anchor callers verify. |
 | Macula mesh | Two pinned stations are the entry points; procedures and the DHT. |
 | Other mesh services | Call `mcl-jobs/info`, which `mcl_om` answers for every service: name, version, health word, procedures. |
@@ -24,8 +24,8 @@ change the script, run it, and look at the result before committing.
 
 ![mcl-jobs containers](../assets/c4-containers.svg)
 
-One OTP release in one image, run under docker on a fleet box that reconciles
-from macula-fleet. What `mcl_om` provides: the node identity key on a named
+One OTP release in one image, run under docker on beam00, which reconciles
+from macula-fleet, with its store on `/bulk0/mcl-jobs`. What `mcl_om` provides: the node identity key on a named
 volume, realm admission, a mesh pool through two pinned stations, `Org/info`,
 and `/health` on the Unix socket `/run/mcl/health.sock` (the container
 healthcheck, never on the mesh). What the service adds: its own reckon-db store,
@@ -37,10 +37,10 @@ healthcheck, never on the mesh). What the service adds: its own reckon-db store,
 
 | Component | Department | What it does |
 |-----------|-----------|--------------|
-| `mcl_jobs_service` | service contract | The six `mcl_om_service` callbacks. Announces no capability of its own yet. |
+| `mcl_jobs_service` | service contract | The six `mcl_om_service` callbacks. Announces the four lifecycle procedures; asks for no topic authority. |
 | `mcl_jobs_app` | service contract | Opens `mcl_jobs_store` and its evoq subscription, then `mcl_om:boot/1`. |
-| `guide_profile_lifecycle` | CMD | Desks `initiate_profile/` and `archive_profile/`; `profile_aggregate`, one stream per citizen DID. |
-| `guide_organisation_lifecycle` | CMD | Desks `initiate_organisation/` and `archive_organisation/`; `organisation_aggregate`, one stream per organisation id, carrying its name. |
+| `guide_profile_lifecycle` | CMD | Desks `initiate_profile/` and `archive_profile/`, each with its responder; `profile_aggregate`, one stream per caller node id. |
+| `guide_organisation_lifecycle` | CMD | Desks `initiate_organisation/` and `archive_organisation/`, each with its responder; `organisation_aggregate`, one stream per organisation id, carrying its name and initiator. |
 
 ### The lifecycle rules
 
@@ -51,6 +51,7 @@ Both aggregates keep `status` as integer bit flags (`evoq_bit_flags`):
 |---------|--------------|------|
 | `initiate_*_v1` | `already_initiated` | the dossier was initiated before, archived or not |
 | `archive_*_v1` | `not_initiated` | the dossier was never initiated |
+| `archive_organisation_v1` | `not_initiator` | the caller is not the node that initiated it (checked before `already_archived`, so a stranger learns nothing more) |
 | `archive_*_v1` | `already_archived` | the dossier was archived before |
 
 Streams are addressed as `profile-<digest>` and `organisation-<digest>`, the
@@ -61,6 +62,9 @@ first 128 bits of the SHA-256 of the key, because reckon-db accepts only
 
 | What | Why it waits |
 |------|--------------|
-| Mesh procedures for the desks | Advertising a capability before it answers puts a lie on the mesh. |
+| Profile content (headline, experience, skills) | The skeleton proves the path first. |
 | `query_jobs` (PRJ + QRY) | No reader needs a read model yet. |
 | Appointments: a profile acting for an organisation | The recruiter role, after profiles and organisations exist. |
+
+Every procedure acts as its caller, and the reasons it can refuse with are
+the wire contract in the [README](../README.md#procedures).

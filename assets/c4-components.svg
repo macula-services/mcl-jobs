@@ -50,8 +50,8 @@
 <rect class="b-cmp" x="32" y="70" width="456" height="100" rx="10"/>
 <text class="t-code" x="48" y="98">mcl_jobs_service</text>
 <text class="t-type" x="48" y="116">[mcl_om_service module]</text>
-<text class="t-desc" x="48" y="140">The six-callback contract. mcl_om adds</text>
-<text class="t-desc" x="48" y="156">mcl-jobs/info and /health; announces nothing else</text>
+<text class="t-desc" x="48" y="140">The six-callback contract: announces the four</text>
+<text class="t-desc" x="48" y="156">procedures; mcl_om adds mcl-jobs/info and /health</text>
 <rect class="b-cmp" x="512" y="70" width="456" height="100" rx="10"/>
 <text class="t-code" x="528" y="98">mcl_jobs_app</text>
 <text class="t-type" x="528" y="116">[OTP application]</text>
@@ -60,17 +60,17 @@
 <rect class="b-sys" x="32" y="194" width="456" height="150" rx="10"/>
 <text class="t-code" x="48" y="222">guide_profile_lifecycle</text>
 <text class="t-type" x="48" y="240">[CMD division]</text>
-<text class="t-desc" x="48" y="264">Desks initiate_profile, archive_profile.</text>
-<text class="t-desc" x="48" y="280">profile_aggregate: one stream per citizen DID,</text>
-<text class="t-desc" x="48" y="296">status in bit flags. Initiated once; archived</text>
-<text class="t-desc" x="48" y="312">only when initiated, and only once.</text>
+<text class="t-desc" x="48" y="264">Desks initiate_profile, archive_profile, each with</text>
+<text class="t-desc" x="48" y="280">its mcl-jobs/* responder acting as the caller.</text>
+<text class="t-desc" x="48" y="296">profile_aggregate: one stream per caller node id;</text>
+<text class="t-desc" x="48" y="312">initiated once, archived only once, if initiated.</text>
 <rect class="b-sys" x="512" y="194" width="456" height="150" rx="10"/>
 <text class="t-code" x="528" y="222">guide_organisation_lifecycle</text>
 <text class="t-type" x="528" y="240">[CMD division]</text>
-<text class="t-desc" x="528" y="264">Desks initiate_organisation, archive_organisation.</text>
-<text class="t-desc" x="528" y="280">organisation_aggregate: one stream per</text>
-<text class="t-desc" x="528" y="296">organisation id, with its name; the same</text>
-<text class="t-desc" x="528" y="312">rules as a profile.</text>
+<text class="t-desc" x="528" y="264">Desks initiate_organisation, archive_organisation,</text>
+<text class="t-desc" x="528" y="280">with their responders. organisation_aggregate:</text>
+<text class="t-desc" x="528" y="296">id, name, initiator; only the initiator archives,</text>
+<text class="t-desc" x="528" y="312">once. Otherwise the rules of a profile.</text>
 <rect class="b-cmp" x="32" y="390" width="456" height="120" rx="10"/>
 <text class="t-code" x="48" y="418">evoq, reckon_evoq</text>
 <text class="t-type" x="48" y="436">[CQRS framework, adapter]</text>
@@ -90,9 +90,9 @@
 <rect class="bound" x="16" y="550" width="968" height="120" rx="12"/>
 <text class="t-bound" x="32" y="572">Planned, not built</text>
 <rect class="b-later" x="32" y="580" width="300" height="76" rx="10"/>
-<text class="t-name" x="48" y="608">Mesh procedures</text>
-<text class="t-type" x="48" y="626">[planned]</text>
-<text class="t-desc" x="48" y="650">Citizens call the desks</text>
+<text class="t-name" x="48" y="608">Profile content</text>
+<text class="t-type" x="48" y="626">[later]</text>
+<text class="t-desc" x="48" y="650">Headline, experience, skills</text>
 <rect class="b-later" x="350" y="580" width="300" height="76" rx="10"/>
 <text class="t-name" x="366" y="608">query_jobs</text>
 <text class="t-type" x="366" y="626">[planned: PRJ + QRY]</text>

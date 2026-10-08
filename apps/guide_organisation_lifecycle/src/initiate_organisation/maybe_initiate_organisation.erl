@@ -38,8 +38,10 @@ handled({ok, Cmd}) -> handle(Cmd);
 handled({error, _} = E) -> E.
 
 built(ok, Cmd) ->
-    Event = organisation_initiated_v1:new(#{organisation_id => initiate_organisation_v1:get_organisation_id(Cmd),
-                                            name => initiate_organisation_v1:get_name(Cmd)}),
+    Event = organisation_initiated_v1:new(#{
+        organisation_id => initiate_organisation_v1:get_organisation_id(Cmd),
+        name => initiate_organisation_v1:get_name(Cmd),
+        initiated_by => initiate_organisation_v1:get_initiated_by(Cmd)}),
     {ok, [organisation_initiated_v1:to_map(Event)]};
 built({error, _} = E, _Cmd) ->
     E.

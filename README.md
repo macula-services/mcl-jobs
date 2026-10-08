@@ -16,9 +16,40 @@ Two CMD divisions keep their dossiers in the service's own event store,
 | `guide_profile_lifecycle` | `initiate_profile`, `archive_profile` | a citizen's profile, keyed by their DID |
 | `guide_organisation_lifecycle` | `initiate_organisation`, `archive_organisation` | an organisation, keyed by its id, with its name |
 
-A dossier is initiated once; only an initiated dossier can be archived, and only
-once. The desks are not on the mesh yet and there is no query side: the service
-announces no capability of its own, because nothing would answer it.
+## Procedures
+
+Four CALLs on the mesh, each acting as its **caller**, the node id that signed
+the CALL (macula sets `caller` and overwrites any the payload sent). Each replies
+`{}` once its event is stored, or `{"reason": "<text>"}` naming the rule that
+refused it. Those reason strings are the wire contract.
+
+| Procedure | Payload | Acts on |
+|-----------|---------|---------|
+| `mcl-jobs/initiate_profile` | `{}` | the caller's own profile |
+| `mcl-jobs/archive_profile` | `{}` | the caller's own profile |
+| `mcl-jobs/initiate_organisation` | `{"organisation_id": "...", "name": "..."}` | that organisation; the caller becomes its initiator |
+| `mcl-jobs/archive_organisation` | `{"organisation_id": "..."}` | that organisation, if the caller initiated it |
+
+| Reason | Meaning |
+|--------|---------|
+| `already_initiated` | initiated before, archived or not; an id is never reused |
+| `not_initiated` | never initiated |
+| `not_initiator` | only the node that initiated an organisation may archive it |
+| `already_archived` | archived before |
+| `invalid_organisation_id` | not 1 to 64 of `[a-z0-9-]` |
+| `missing_name`, `invalid_name` | a name is UTF-8 text, at most 200 bytes, no control characters |
+| `no_caller` | the CALL carried no 32-byte node id |
+| `internal_error` | anything else; the service log has it |
+
+Plus `mcl-jobs/info`, which `mcl_om` answers for every service.
+
+Two known limits of the skeleton. A profile belongs to a node key, so whoever
+loses their key loses their profile with it. Organisation ids go to whoever
+initiates them first and are never released, so one node can claim many.
+
+`scripts/smoke.sh` calls all of this against a deployed service with fresh
+identities and checks every answer, including the refusals that only a stored
+event can produce.
 
 The architecture (C4 context, containers, components) is in
 [architecture/README.md](architecture/README.md).
