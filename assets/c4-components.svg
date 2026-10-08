@@ -1,0 +1,118 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 720" role="img" aria-label="mcl-jobs components">
+<title>mcl-jobs components</title>
+<style>
+.t-name { font-family: "Atkinson Hyperlegible", "Segoe UI", system-ui, -apple-system, Helvetica, Arial, sans-serif; font-size: 15px; font-weight: 700; }
+.t-desc { font-family: "Atkinson Hyperlegible", "Segoe UI", system-ui, -apple-system, Helvetica, Arial, sans-serif; font-size: 12.5px; }
+.t-rel { font-family: "Atkinson Hyperlegible", "Segoe UI", system-ui, -apple-system, Helvetica, Arial, sans-serif; font-size: 11.5px; paint-order: stroke; stroke-width: 4px; stroke-linejoin: round; }
+.t-code { font-family: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace; font-size: 13px; font-weight: 600; }
+.t-type { font-family: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace; font-size: 11.5px; }
+.t-bound { font-family: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace; font-size: 12px; font-weight: 600; }
+.t-leg { font-family: "Atkinson Hyperlegible", "Segoe UI", system-ui, -apple-system, Helvetica, Arial, sans-serif; font-size: 12px; }
+.edge { fill: none; stroke-width: 1.25; }
+.edge-later { fill: none; stroke-width: 1.25; stroke-dasharray: 5 4; }
+.bg { fill: #FFFFFF; }
+.b-sys { fill: #F5E9CC; stroke: #A56F0A; stroke-width: 2; }
+.b-per { fill: #E3EBF2; stroke: #3B5B7A; stroke-width: 1.25; }
+.b-mac { fill: #E6E4EE; stroke: #5E5A78; stroke-width: 1.25; }
+.b-ext { fill: #ECEFED; stroke: #8A9791; stroke-width: 1.25; }
+.b-cmp { fill: #FFFFFF; stroke: #8A9791; stroke-width: 1.25; }
+.b-later { fill: none; stroke: #8A9791; stroke-width: 1.25; stroke-dasharray: 5 4; }
+.bound { fill: none; stroke: #B3BDB8; stroke-width: 1; }
+.head { fill: #3B5B7A; }
+.t-name, .t-code { fill: #16201D; }
+.t-type, .t-bound, .t-leg { fill: #66736E; }
+.t-desc { fill: #34413C; }
+.t-rel { fill: #66736E; stroke: #FFFFFF; }
+.edge, .edge-later { stroke: #8A9791; }
+.arrowhead { fill: #8A9791; }
+@media (prefers-color-scheme: dark) {
+.bg { fill: #171F1C; }
+.b-sys { fill: #3A2E13; stroke: #E3AA3C; }
+.b-per { fill: #1D2A36; stroke: #8EB4D8; }
+.b-mac { fill: #26243A; stroke: #A9A4C8; }
+.b-ext { fill: #1C2421; stroke: #7D8B85; }
+.b-cmp { fill: #171F1C; stroke: #7D8B85; }
+.b-later { stroke: #7D8B85; }
+.bound { stroke: #4A5752; }
+.head { fill: #8EB4D8; }
+.t-name, .t-code { fill: #E6ECE9; }
+.t-type, .t-bound, .t-leg { fill: #93A09A; }
+.t-desc { fill: #C3CDC8; }
+.t-rel { fill: #93A09A; stroke: #171F1C; }
+.edge, .edge-later { stroke: #7D8B85; }
+.arrowhead { fill: #7D8B85; }
+}
+</style>
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="arrowhead" d="M0 0L10 5L0 10z"/></marker></defs>
+<rect class="bg" x="0" y="0" width="1000" height="720"/>
+<rect class="bound" x="16" y="40" width="968" height="490" rx="12"/>
+<text class="t-bound" x="32" y="62">mcl-jobs service [Container]</text>
+<rect class="b-cmp" x="32" y="70" width="456" height="100" rx="10"/>
+<text class="t-code" x="48" y="98">mcl_jobs_service</text>
+<text class="t-type" x="48" y="116">[mcl_om_service module]</text>
+<text class="t-desc" x="48" y="140">The six-callback contract. mcl_om adds</text>
+<text class="t-desc" x="48" y="156">mcl-jobs/info and /health; announces nothing else</text>
+<rect class="b-cmp" x="512" y="70" width="456" height="100" rx="10"/>
+<text class="t-code" x="528" y="98">mcl_jobs_app</text>
+<text class="t-type" x="528" y="116">[OTP application]</text>
+<text class="t-desc" x="528" y="140">Opens mcl_jobs_store and its evoq</text>
+<text class="t-desc" x="528" y="156">subscription, then mcl_om:boot/1</text>
+<rect class="b-sys" x="32" y="194" width="456" height="150" rx="10"/>
+<text class="t-code" x="48" y="222">guide_profile_lifecycle</text>
+<text class="t-type" x="48" y="240">[CMD division]</text>
+<text class="t-desc" x="48" y="264">Desks initiate_profile, archive_profile.</text>
+<text class="t-desc" x="48" y="280">profile_aggregate: one stream per citizen DID,</text>
+<text class="t-desc" x="48" y="296">status in bit flags. Initiated once; archived</text>
+<text class="t-desc" x="48" y="312">only when initiated, and only once.</text>
+<rect class="b-sys" x="512" y="194" width="456" height="150" rx="10"/>
+<text class="t-code" x="528" y="222">guide_organisation_lifecycle</text>
+<text class="t-type" x="528" y="240">[CMD division]</text>
+<text class="t-desc" x="528" y="264">Desks initiate_organisation, archive_organisation.</text>
+<text class="t-desc" x="528" y="280">organisation_aggregate: one stream per</text>
+<text class="t-desc" x="528" y="296">organisation id, with its name; the same</text>
+<text class="t-desc" x="528" y="312">rules as a profile.</text>
+<rect class="b-cmp" x="32" y="390" width="456" height="120" rx="10"/>
+<text class="t-code" x="48" y="418">evoq, reckon_evoq</text>
+<text class="t-type" x="48" y="436">[CQRS framework, adapter]</text>
+<text class="t-desc" x="48" y="460">Routes each command to its aggregate process,</text>
+<text class="t-desc" x="48" y="476">replays the stream, appends the event</text>
+<rect class="b-cmp" x="512" y="390" width="456" height="120" rx="10"/>
+<text class="t-code" x="528" y="418">mcl_jobs_store</text>
+<text class="t-type" x="528" y="436">[reckon-db store]</text>
+<text class="t-desc" x="528" y="460">profile-&lt;digest&gt; and organisation-&lt;digest&gt;</text>
+<text class="t-desc" x="528" y="476">streams under MCL_DATA_DIR</text>
+<path class="edge" d="M200 344V390" marker-end="url(#a)"/>
+<text class="t-rel" x="208" y="372">dispatch</text>
+<path class="edge" d="M740 344V366H400V390" marker-end="url(#a)"/>
+<text class="t-rel" x="600" y="360" text-anchor="middle">dispatch</text>
+<path class="edge" d="M488 450H512" marker-end="url(#a)"/>
+<text class="t-rel" x="500" y="440" text-anchor="middle">appends</text>
+<rect class="bound" x="16" y="550" width="968" height="120" rx="12"/>
+<text class="t-bound" x="32" y="572">Planned, not built</text>
+<rect class="b-later" x="32" y="580" width="300" height="76" rx="10"/>
+<text class="t-name" x="48" y="608">Mesh procedures</text>
+<text class="t-type" x="48" y="626">[planned]</text>
+<text class="t-desc" x="48" y="650">Citizens call the desks</text>
+<rect class="b-later" x="350" y="580" width="300" height="76" rx="10"/>
+<text class="t-name" x="366" y="608">query_jobs</text>
+<text class="t-type" x="366" y="626">[planned: PRJ + QRY]</text>
+<text class="t-desc" x="366" y="650">Profiles and organisations to read</text>
+<rect class="b-later" x="668" y="580" width="300" height="76" rx="10"/>
+<text class="t-name" x="684" y="608">Appointments</text>
+<text class="t-type" x="684" y="626">[later]</text>
+<text class="t-desc" x="684" y="650">A profile acting for an organisation</text>
+<rect class="b-sys" x="24" y="690" width="22" height="14" rx="3"/>
+<text class="t-leg" x="54" y="702">In scope</text>
+<rect class="b-per" x="110.8" y="690" width="22" height="14" rx="3"/>
+<text class="t-leg" x="140.8" y="702">Person</text>
+<rect class="b-mac" x="184.39999999999998" y="690" width="22" height="14" rx="3"/>
+<text class="t-leg" x="214.39999999999998" y="702">Macula infrastructure</text>
+<rect class="b-ext" x="357.0" y="690" width="22" height="14" rx="3"/>
+<text class="t-leg" x="387.0" y="702">External system</text>
+<rect class="b-cmp" x="490.0" y="690" width="22" height="14" rx="3"/>
+<text class="t-leg" x="520.0" y="702">Container or component</text>
+<rect class="b-later" x="669.2" y="690" width="22" height="14" rx="3"/>
+<text class="t-leg" x="699.2" y="702">Planned, not built</text>
+<rect class="bound" x="822.0" y="690" width="22" height="14" rx="3"/>
+<text class="t-leg" x="852.0" y="702">Boundary</text>
+</svg>

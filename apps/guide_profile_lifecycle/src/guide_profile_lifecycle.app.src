@@ -1,0 +1,18 @@
+{application, guide_profile_lifecycle, [
+    {description, "CMD: the life of a citizen's profile, from initiation to archive (profile-{digest} stream)"},
+    {vsn, "0.1.0"},
+    {registered, []},
+    {applications, [
+        kernel,
+        stdlib,
+        crypto,
+        %% The desks dispatch through evoq into mcl_jobs_store, which mcl_jobs
+        %% opens before the service boots.
+        evoq,
+        reckon_evoq
+    ]},
+    {env, []},
+    {modules, []},
+    {licenses, ["Apache-2.0"]},
+    {links, []}
+]}.
