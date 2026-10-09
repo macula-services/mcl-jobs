@@ -123,7 +123,7 @@ def context():
     d.box("b-per", 690, 30, 270, 96, "Organisation", "[Person or group]",
           ["Initiated by one node, the only", "one that may archive it"], person=True)
     d.box("b-sys", 365, 190, 270, 120, "mcl-jobs", "[mcl_om mesh service]",
-          ["Four lifecycle procedures over the", "mesh; each profile and organisation", "kept as events in its own store"])
+          ["Lifecycle and query procedures, all", "sealed; events in its own store, a", "read model beside it"])
     d.box("b-mac", 40, 190, 270, 120, "macula-realm", "[Macula infrastructure]",
           ["Admits the service: its identity", "claim, its org mcl-jobs, the trust", "anchor every caller verifies"])
     d.box("b-ext", 690, 190, 270, 120, "Other mesh services", "[External systems]",
@@ -141,16 +141,16 @@ def context():
 
 def containers():
     d = Diagram("c4-containers.svg", "mcl-jobs containers", 1000, 600)
-    d.bound(24, 40, 620, 420, "A lab box [docker, reconciled from the fleet repository]")
+    d.bound(24, 40, 620, 500, "A lab box [docker, reconciled from the fleet repository]")
     d.box("b-sys", 44, 76, 580, 120, "mcl-jobs service", "[mcl_om mesh service, OCI image, OTP 28 release]",
           ["Boots as an mcl_om service: identity key, realm admission, a mesh pool through",
            "two pinned stations, Org/info and /health. Opens its own reckon-db store first;",
-           "the CMD divisions run against it."])
+           "commands append there, projections fill the read model."])
     d.box("b-cmp", 44, 220, 280, 112, "Identity key", "[Named volume]",
           ["The node's identity key: its node", "id, the one the realm admits"])
     d.box("b-cmp", 344, 220, 280, 112, "Event store", "[data drive, mounted at /data]",
           ["mcl_jobs_store: every profile and", "organisation stream. Survives a", "recreate only because it is mounted"])
-    d.box("b-cmp", 44, 356, 580, 84, "/health", "[Unix socket /run/mcl/health.sock]",
+    d.box("b-cmp", 44, 352, 580, 84, "/health", "[Unix socket /run/mcl/health.sock]",
           ["The container healthcheck; internal to the box, not on the mesh."])
     d.box("b-mac", 690, 76, 286, 96, "Macula mesh", "[Macula infrastructure]",
           ["Entry: two pinned stations (QUIC)"])
@@ -158,7 +158,7 @@ def containers():
           ["Admission; trust anchor"])
     d.box("b-ext", 690, 300, 286, 96, "ghcr.io", "[External system]",
           ["The signed image, pinned by digest", "in the fleet repository"])
-    d.box("b-later", 44, 476, 580, 60, "query_jobs read model", "[planned: PRJ + QRY]", [])
+    d.box("b-cmp", 44, 452, 580, 68, "Read model", "[jobs.sqlite3 beside the event store, on the data drive]", [])
     d.edge("M624 124H690"); d.text("t-rel", 657, 116, "joins", anchor="middle")
     d.edge("M624 170H660V234H690"); d.text("t-rel", 668, 206, "claim", anchor="middle", rotate=-90)
     d.edge("M690 348H644V186H624"); d.text("t-rel", 652, 300, "pulled from", anchor="middle", rotate=-90)
@@ -169,30 +169,37 @@ def containers():
 
 
 def components():
-    d = Diagram("c4-components.svg", "mcl-jobs components", 1000, 720)
-    d.bound(16, 40, 968, 490, "mcl-jobs service [Container]")
+    d = Diagram("c4-components.svg", "mcl-jobs components", 1000, 880)
+    d.bound(16, 40, 968, 650, "mcl-jobs service [Container]")
     d.box("b-cmp", 32, 70, 456, 100, "mcl_jobs_service", "[mcl_om_service module]",
-          ["The six-callback contract: announces the four", "procedures; mcl_om adds mcl-jobs/info and /health"], code=True)
+          ["Eleven procedures, every one requiring a sealed", "call; mcl_om adds mcl-jobs/info and /health"], code=True)
     d.box("b-cmp", 512, 70, 456, 100, "mcl_jobs_app", "[OTP application]",
           ["Opens mcl_jobs_store and its evoq", "subscription, then mcl_om:boot/1"], code=True)
     d.box("b-sys", 32, 194, 456, 150, "guide_profile_lifecycle", "[CMD division]",
-          ["Desks initiate_profile, archive_profile, each with", "its mcl-jobs/* responder acting as the caller.",
-           "profile_aggregate: one stream per caller node id;", "initiated once, archived only once, if initiated."], code=True)
+          ["initiate, describe, publish, withdraw, archive:", "each a responder acting as the caller.",
+           "profile_aggregate: one stream per node id;", "bit-flag status, rules in execute/2."], code=True)
     d.box("b-sys", 512, 194, 456, 150, "guide_organisation_lifecycle", "[CMD division]",
-          ["Desks initiate_organisation, archive_organisation,", "with their responders. organisation_aggregate:",
-           "id, name, initiator; only the initiator archives,", "once. Otherwise the rules of a profile."], code=True)
-    d.box("b-cmp", 32, 390, 456, 120, "evoq, reckon_evoq", "[CQRS framework, adapter]",
-          ["Routes each command to its aggregate process,", "replays the stream, appends the event"], code=True)
-    d.box("b-cmp", 512, 390, 456, 120, "mcl_jobs_store", "[reckon-db store]",
-          ["profile-<digest> and organisation-<digest>", "streams under MCL_DATA_DIR"], code=True)
+          ["initiate_organisation, archive_organisation,", "with their responders. organisation_aggregate:",
+           "id, name, initiator; only the initiator", "archives, once."], code=True)
+    d.box("b-cmp", 32, 390, 456, 110, "evoq, reckon_evoq", "[CQRS framework, adapter]",
+          ["Routes each command to its aggregate,", "appends the event, feeds the subscription"], code=True)
+    d.box("b-cmp", 512, 390, 456, 110, "mcl_jobs_store", "[reckon-db store]",
+          ["profile-<digest>, organisation-<digest>", "streams under MCL_DATA_DIR"], code=True)
+    d.box("b-sys", 32, 540, 456, 130, "project_jobs", "[PRJ division]",
+          ["One projection per event, each an upsert of its", "own columns, version-guarded where an event",
+           "can set a value back. Writes jobs.sqlite3."], code=True)
+    d.box("b-sys", 512, 540, 456, 130, "query_jobs", "[QRY division]",
+          ["get_profile_by_id, get_profiles_page,", "get_organisation_by_id, get_organisations_page.",
+           "visible_profiles: published, or the caller's own."], code=True)
     d.edge("M200 344V390"); d.text("t-rel", 208, 372, "dispatch")
     d.edge("M740 344V366H400V390"); d.text("t-rel", 600, 360, "dispatch", anchor="middle")
-    d.edge("M488 450H512"); d.text("t-rel", 500, 440, "appends", anchor="middle")
-    d.bound(16, 550, 968, 120, "Planned, not built")
-    d.box("b-later", 32, 580, 300, 76, "Profile content", "[later]", ["Headline, experience, skills"])
-    d.box("b-later", 350, 580, 300, 76, "query_jobs", "[planned: PRJ + QRY]", ["Profiles and organisations to read"])
-    d.box("b-later", 668, 580, 300, 76, "Appointments", "[later]", ["A profile acting for an organisation"])
-    d.legend(690)
+    d.edge("M488 445H512"); d.text("t-rel", 500, 436, "appends", anchor="middle")
+    d.edge("M260 500V540"); d.text("t-rel", 268, 524, "events")
+    d.edge("M488 605H512"); d.text("t-rel", 500, 596, "reads", anchor="middle")
+    d.bound(16, 710, 968, 120, "Planned, not built")
+    d.box("b-later", 32, 740, 456, 76, "Appointments", "[later]", ["A profile acting for an organisation"])
+    d.box("b-later", 512, 740, 456, 76, "Search", "[later]", ["By skill or location, not only by id"])
+    d.legend(852)
     d.write()
 
 

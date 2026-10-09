@@ -1,0 +1,19 @@
+{application, project_jobs, [
+    {description, "PRJ: projects profile and organisation events into the SQLite read model query_jobs answers from"},
+    {vsn, "0.1.0"},
+    {registered, [project_jobs_sup, jobs_read_model_store]},
+    {mod, {project_jobs_app, []}},
+    {applications, [
+        kernel,
+        stdlib,
+        %% The projections are evoq_event_handlers, fed by the store
+        %% subscription mcl_jobs_app opens after this app has started.
+        evoq,
+        reckon_evoq,
+        esqlite
+    ]},
+    {env, []},
+    {modules, []},
+    {licenses, ["Apache-2.0"]},
+    {links, []}
+]}.

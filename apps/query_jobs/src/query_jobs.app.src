@@ -1,0 +1,24 @@
+{application, query_jobs, [
+    {description, "QRY: finds profiles and organisations in the read model project_jobs writes"},
+    {vsn, "0.1.0"},
+    {registered, [query_jobs_sup, jobs_query_store]},
+    {mod, {query_jobs_app, []}},
+    {applications, [
+        kernel,
+        stdlib,
+        %% The responders implement macula_response and read their payloads
+        %% through mcl_om_wire.
+        macula,
+        mcl_om,
+        esqlite,
+        %% organisation_aggregate:valid_id/1 is the one rule for an
+        %% organisation id.
+        guide_organisation_lifecycle,
+        %% The read model's file and schema are project_jobs'.
+        project_jobs
+    ]},
+    {env, []},
+    {modules, []},
+    {licenses, ["Apache-2.0"]},
+    {links, []}
+]}.

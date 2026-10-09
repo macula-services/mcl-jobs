@@ -20,6 +20,17 @@ profile_responders_act_on_the_callers_own_profile_test() ->
     {ok, A} = archive_profile_responder:command(Payload),
     ?assertEqual(?ALICE, archive_profile_v1:get_citizen_did(A)).
 
+the_profile_desk_responders_act_on_the_callers_own_profile_test() ->
+    Payload = #{caller => ?ALICE, citizen_did => ?MALLORY, headline => {text, <<"Builds things">>},
+                skills => [{text, <<"Erlang">>}]},
+    {ok, D} = describe_profile_responder:command(Payload),
+    ?assertEqual(?ALICE, describe_profile_v1:get_citizen_did(D)),
+    ?assertEqual([<<"Erlang">>], describe_profile_v1:get_skills(D)),
+    {ok, P} = publish_profile_responder:command(Payload),
+    ?assertEqual(?ALICE, publish_profile_v1:get_citizen_did(P)),
+    {ok, W} = withdraw_profile_responder:command(Payload),
+    ?assertEqual(?ALICE, withdraw_profile_v1:get_citizen_did(W)).
+
 organisation_responders_record_the_caller_test() ->
     {ok, I} = initiate_organisation_responder:command(
                 #{caller => ?ALICE, organisation_id => ?ORG, name => {text, <<"Example">>},
@@ -36,7 +47,8 @@ every_responder_refuses_a_call_without_a_node_id_caller_test_() ->
                   name => {text, <<"Example">>}},
                 #{caller => <<16#a1:248>>, organisation_id => ?ORG, name => {text, <<"Example">>}}],
     [?_assertEqual({error, no_caller}, R:command(P))
-     || R <- [initiate_profile_responder, archive_profile_responder,
+     || R <- [initiate_profile_responder, archive_profile_responder, describe_profile_responder,
+              publish_profile_responder, withdraw_profile_responder,
               initiate_organisation_responder, archive_organisation_responder],
         P <- Payloads].
 

@@ -7,6 +7,28 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Added
+
+- `describe_profile`, `publish_profile` and `withdraw_profile`, each acting on
+  the caller's own profile, with `profile_described_v1`,
+  `profile_published_v1` and `profile_withdrawn_v1` and the status flags
+  DESCRIBED and PUBLISHED (#2).
+- The read side (#3): `project_jobs` projects every profile and organisation
+  event into a SQLite read model beside the event store, and `query_jobs`
+  answers `get_profile_by_id`, `get_profiles_page`, `get_organisation_by_id`
+  and `get_organisations_page`. A profile is seen by the realm when published
+  and not archived, and by its owner while not archived; otherwise
+  `not_found`.
+- `scripts/smoke.sh` covers the new procedures and fails on any reply that was
+  not sealed.
+
+### Changed
+
+- Every procedure requires a sealed call (`confidential => required`, with
+  `kem_advertise` enabled): a profile crosses a station only as ciphertext.
+- Profile text and organisation names are kept in NFC and refuse control and
+  invisible format characters (bidi overrides, zero-width characters).
+
 ## [0.1.0] - 2026-10-08
 
 ### Added

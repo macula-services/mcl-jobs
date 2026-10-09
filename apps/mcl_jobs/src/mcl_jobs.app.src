@@ -16,7 +16,11 @@
         %% The CMD divisions. Library applications: their desks run inside
         %% evoq's aggregate processes, against the store mcl_jobs_app opens.
         guide_profile_lifecycle,
-        guide_organisation_lifecycle
+        guide_organisation_lifecycle,
+        %% The read side. project_jobs starts before mcl_jobs_app opens the
+        %% store subscription, so its projections hear the catch-up replay.
+        project_jobs,
+        query_jobs
     ]},
     {env, []},
     {modules, []},

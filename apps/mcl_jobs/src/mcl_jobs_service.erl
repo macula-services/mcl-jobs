@@ -5,7 +5,7 @@
 %% watching. The `-behaviour' attribute below is what turns that into a compile
 %% error instead, and the generated test suite guards the attribute itself.
 %%
-%% IT ANNOUNCES ITS FOUR LIFECYCLE PROCEDURES AND ASKS FOR NO TOPIC AUTHORITY.
+%% IT ANNOUNCES ITS LIFECYCLE AND QUERY PROCEDURES AND ASKS FOR NO TOPIC AUTHORITY.
 %% Advertising a capability before it exists puts a lie on the mesh that another
 %% service can find and call, so each entry names a responder that answers, and
 %% a test pins the list so growing it is a deliberate act.
@@ -55,14 +55,19 @@ health() -> ok.
 %% that acts as its caller (the node id that signed it) and replies #{} or
 %% #{reason => Why}; README, "Procedures", is the contract.
 capabilities() ->
-    [#{name => <<"initiate_profile">>, version => 1,
-       handler => {initiate_profile_responder, []}},
-     #{name => <<"archive_profile">>, version => 1,
-       handler => {archive_profile_responder, []}},
-     #{name => <<"initiate_organisation">>, version => 1,
-       handler => {initiate_organisation_responder, []}},
-     #{name => <<"archive_organisation">>, version => 1,
-       handler => {archive_organisation_responder, []}}].
+    [procedure(Name)
+     || Name <- [<<"initiate_profile">>, <<"describe_profile">>, <<"publish_profile">>,
+                 <<"withdraw_profile">>, <<"archive_profile">>,
+                 <<"initiate_organisation">>, <<"archive_organisation">>,
+                 <<"get_profile_by_id">>, <<"get_profiles_page">>,
+                 <<"get_organisation_by_id">>, <<"get_organisations_page">>]].
+
+%% Each is answered by <name>_responder, names the KEM key (kem_advertise in
+%% sys.config) and refuses a call in the clear: a profile is personal data,
+%% and crosses a station only as ciphertext.
+procedure(Name) ->
+    #{name => Name, version => 1, confidential => required,
+      handler => {binary_to_atom(<<Name/binary, "_responder">>), []}}.
 
 %% THE AUTHORITY THIS SERVICE ASKS THE REALM FOR, and deliberately nothing more.
 %% Ask for exactly the topics you publish and subscribe to. mcl-jobs publishes

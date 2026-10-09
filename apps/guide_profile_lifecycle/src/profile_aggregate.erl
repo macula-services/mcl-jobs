@@ -1,11 +1,15 @@
 %%% @doc Aggregate for a citizen's profile.
 %%%
 %%% One profile per citizen, keyed by the citizen's DID. Lifecycle:
-%%% initiate_profile (birth) -> archive_profile (terminal).
+%%% initiate_profile (birth) -> describe_profile (any number of times) ->
+%%% publish_profile <-> withdraw_profile -> archive_profile (terminal).
 %%%
 %%% The lifecycle rules live here, in execute/2; the desk handlers only
 %%% validate a payload and build the event. Rules: a profile is initiated
-%%% once, only an initiated profile can be archived, and only once.
+%%% once, only an initiated profile can be archived, and only once. Only a
+%%% live profile (initiated, not archived) is described, published or
+%%% withdrawn; publishing needs a description and is not repeated, and
+%%% withdrawing needs it published.
 %%% @end
 -module(profile_aggregate).
 -behaviour(evoq_aggregate).
@@ -48,6 +52,18 @@ do_execute(archive_profile_v1, Status, Payload) ->
     archive(evoq_bit_flags:has(Status, ?PROFILE_INITIATED),
             evoq_bit_flags:has(Status, ?PROFILE_ARCHIVED),
             Payload);
+do_execute(describe_profile_v1, Status, Payload) ->
+    live(Status, fun() -> maybe_describe_profile:handle_from_map(Payload) end);
+do_execute(publish_profile_v1, Status, Payload) ->
+    live(Status, fun() ->
+        publish(evoq_bit_flags:has(Status, ?PROFILE_DESCRIBED),
+                evoq_bit_flags:has(Status, ?PROFILE_PUBLISHED),
+                Payload)
+    end);
+do_execute(withdraw_profile_v1, Status, Payload) ->
+    live(Status, fun() ->
+        withdraw(evoq_bit_flags:has(Status, ?PROFILE_PUBLISHED), Payload)
+    end);
 do_execute(_Unknown, _Status, _Payload) ->
     {error, unknown_command}.
 
@@ -57,3 +73,20 @@ initiate(false, Payload) -> maybe_initiate_profile:handle_from_map(Payload).
 archive(false, _Archived, _Payload) -> {error, not_initiated};
 archive(true, true, _Payload) -> {error, already_archived};
 archive(true, false, Payload) -> maybe_archive_profile:handle_from_map(Payload).
+
+%% Initiated and not archived: the only state a profile changes in.
+live(Status, Then) ->
+    alive(evoq_bit_flags:has(Status, ?PROFILE_INITIATED),
+          evoq_bit_flags:has(Status, ?PROFILE_ARCHIVED),
+          Then).
+
+alive(false, _Archived, _Then) -> {error, not_initiated};
+alive(true, true, _Then) -> {error, profile_archived};
+alive(true, false, Then) -> Then().
+
+publish(false, _Published, _Payload) -> {error, not_described};
+publish(true, true, _Payload) -> {error, already_published};
+publish(true, false, Payload) -> maybe_publish_profile:handle_from_map(Payload).
+
+withdraw(false, _Payload) -> {error, not_published};
+withdraw(true, Payload) -> maybe_withdraw_profile:handle_from_map(Payload).

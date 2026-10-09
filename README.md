@@ -2,54 +2,80 @@
 
 **LinkedIn as it was intended, but over the Macula Mesh**
 
-## Status: walking skeleton
+## Status
 
 The service boots, joins the mesh and answers `/health` on its Unix socket,
 `/run/mcl/health.sock` inside the container. `mcl_om` answers `mcl-jobs/info` on
 the mesh for it: name, version, health word, procedures.
 
 Two CMD divisions keep their dossiers in the service's own event store,
-`mcl_jobs_store`:
+`mcl_jobs_store`, and a read side answers from a SQLite read model beside it:
 
-| Division | Desks | Dossier |
-|----------|-------|---------|
-| `guide_profile_lifecycle` | `initiate_profile`, `archive_profile` | a citizen's profile, keyed by their DID |
-| `guide_organisation_lifecycle` | `initiate_organisation`, `archive_organisation` | an organisation, keyed by its id, with its name |
+| Division | Desks | Dossier or read model |
+|----------|-------|-----------------------|
+| `guide_profile_lifecycle` (CMD) | `initiate_profile`, `describe_profile`, `publish_profile`, `withdraw_profile`, `archive_profile` | a citizen's profile, keyed by their node id |
+| `guide_organisation_lifecycle` (CMD) | `initiate_organisation`, `archive_organisation` | an organisation, keyed by its id, with its name and initiator |
+| `project_jobs` (PRJ) | one projection per event | `jobs.sqlite3`: profiles, organisations |
+| `query_jobs` (QRY) | `get_profile_by_id`, `get_profiles_page`, `get_organisation_by_id`, `get_organisations_page` | reads `jobs.sqlite3` |
 
 ## Procedures
 
-Four CALLs on the mesh, each acting as its **caller**, the node id that signed
-the CALL (macula sets `caller` and overwrites any the payload sent). Each replies
-`{}` once its event is stored, or `{"reason": "<text>"}` naming the rule that
-refused it. Those reason strings are the wire contract.
+Every procedure is a CALL that acts as its **caller**, the node id that signed
+it (macula sets `caller` and overwrites any the payload sent), and **requires a
+sealed call**: the service names its KEM key and refuses a call in the clear, so
+a profile crosses a station only as ciphertext. Each replies with its answer, or
+`{"reason": "<text>"}` naming the rule that refused it. Those reason strings
+are the wire contract.
 
-| Procedure | Payload | Acts on |
-|-----------|---------|---------|
-| `mcl-jobs/initiate_profile` | `{}` | the caller's own profile |
-| `mcl-jobs/archive_profile` | `{}` | the caller's own profile |
-| `mcl-jobs/initiate_organisation` | `{"organisation_id": "...", "name": "..."}` | that organisation; the caller becomes its initiator |
-| `mcl-jobs/archive_organisation` | `{"organisation_id": "..."}` | that organisation, if the caller initiated it |
+| Procedure | Payload | Answer |
+|-----------|---------|--------|
+| `mcl-jobs/initiate_profile` | `{}` | `{}`: the caller's own profile exists |
+| `mcl-jobs/describe_profile` | `{"headline", "skills": [...], "location"}` | `{}`: replaces the caller's description; if published, the realm sees the new one at once |
+| `mcl-jobs/publish_profile` | `{}` | `{}`: the realm can see the caller's profile |
+| `mcl-jobs/withdraw_profile` | `{}` | `{}`: only the caller sees it again |
+| `mcl-jobs/archive_profile` | `{}` | `{}`: final; nobody sees it again, and this key cannot initiate another |
+| `mcl-jobs/initiate_organisation` | `{"organisation_id", "name"}` | `{}`: the caller becomes its initiator |
+| `mcl-jobs/archive_organisation` | `{"organisation_id"}` | `{}`: only by its initiator |
+| `mcl-jobs/get_profile_by_id` | `{"citizen": "<64 hex>"}` | `{"profile": {citizen, headline, skills, location, published}}` |
+| `mcl-jobs/get_profiles_page` | `{"after"?, "limit"?}` | `{"profiles": [...], "next"?}`, in citizen order |
+| `mcl-jobs/get_organisation_by_id` | `{"organisation_id"}` | `{organisation_id, name, initiated_by, initiated_at, archived}` |
+| `mcl-jobs/get_organisations_page` | `{"after"?, "limit"?}` | `{"organisations": [...], "next"?}`, active ones in id order |
+
+**Who sees a profile:** the realm sees it when it is published and not
+archived; its owner also sees it unpublished. Anything else answers exactly as a
+profile that never existed (`not_found`, or absent from the page). One module,
+`visible_profiles`, holds that rule for both profile queries. Organisations
+have no publish step: initiating one is a public act, and an archived one still
+answers by id, with `archived: 1`.
 
 | Reason | Meaning |
 |--------|---------|
-| `already_initiated` | initiated before, archived or not; an id is never reused |
+| `already_initiated` | initiated before, archived or not; an id or a key is never reused |
 | `not_initiated` | never initiated |
+| `profile_archived` | the profile is archived and changes no more |
+| `not_described`, `already_published`, `not_published` | publish needs a description and happens once; withdraw needs it published |
 | `not_initiator` | only the node that initiated an organisation may archive it |
 | `already_archived` | archived before |
+| `invalid_headline`, `invalid_skills`, `invalid_location` | text is UTF-8, kept in NFC, with no control or invisible format characters (bidi overrides, zero-width characters and the like); headline 1 to 200 bytes, up to 30 skills of 1 to 64, location up to 100 |
 | `invalid_organisation_id` | not 1 to 64 of `[a-z0-9-]` |
-| `missing_name`, `invalid_name` | a name is UTF-8 text, at most 200 bytes, no control characters |
+| `missing_name`, `invalid_name` | an organisation name follows the same text rule, at most 200 bytes |
+| `invalid_citizen`, `invalid_cursor`, `invalid_limit` | a citizen is 64 hex characters; a limit is 1 to 50 (default 20) |
+| `not_found` | nothing the caller may see |
 | `no_caller` | the CALL carried no 32-byte node id |
-| `internal_error` | anything else; the service log has it |
+| `store_unavailable`, `internal_error` | the service's own fault; its log has it |
 
 Plus `mcl-jobs/info`, which `mcl_om` answers for every service.
 
-Two known limits of the skeleton. A profile belongs to a node key, so whoever
-loses their key loses their profile with it. Organisation ids go to whoever
-initiates them first and are never released, so one node can claim many.
+Known limits. A profile belongs to a node key, so whoever loses their key loses
+their profile, and archiving is final for that key. Organisation ids go to
+whoever initiates them first and are never released. Anyone the realm admits
+can publish a profile, so the directory is exactly as trustworthy as the realm.
+Events are permanent: a description, once given, stays in the service's event
+store after it is replaced, withdrawn or archived, even though no query shows it.
 
 `scripts/smoke.sh` calls all of this against a deployed service with fresh
-identities and checks every answer, including the refusals that only a stored
-event can produce.
+identities and checks every answer, that every reply came back sealed, and the
+refusals that only a stored event can produce.
 
 The architecture (C4 context, containers, components) is in
 [architecture/README.md](architecture/README.md).

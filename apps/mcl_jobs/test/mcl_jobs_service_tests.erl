@@ -65,13 +65,17 @@ info_version_matches_the_application_test() ->
 health_is_green_test() ->
     ?assertEqual(ok, ?SERVICE:health()).
 
-%% The four lifecycle procedures and nothing else, each served by a module that
-%% implements macula_response. Changing the list breaks this test on purpose.
-announces_the_four_lifecycle_procedures_test() ->
+%% The lifecycle and query procedures and nothing else, each served by a module
+%% that implements macula_response. Changing the list breaks this test on purpose.
+announces_the_lifecycle_and_query_procedures_test() ->
     Caps = ?SERVICE:capabilities(),
-    ?assertEqual([<<"initiate_profile">>, <<"archive_profile">>,
-                  <<"initiate_organisation">>, <<"archive_organisation">>],
+    ?assertEqual([<<"initiate_profile">>, <<"describe_profile">>, <<"publish_profile">>,
+                  <<"withdraw_profile">>, <<"archive_profile">>,
+                  <<"initiate_organisation">>, <<"archive_organisation">>,
+                  <<"get_profile_by_id">>, <<"get_profiles_page">>,
+                  <<"get_organisation_by_id">>, <<"get_organisations_page">>],
                  [N || #{name := N} <- Caps]),
+    ?assertEqual([required], lists:usort([maps:get(confidential, C, absent) || C <- Caps])),
     [?assert(lists:member({behaviour, [macula_response]}, M:module_info(attributes)))
      || #{handler := {M, _}} <- Caps].
 
@@ -145,6 +149,11 @@ every_division_dispatches_into_the_store_this_service_opens_test() ->
     Opened = maps:get(id, ?SERVICE:event_store()),
     ?assertEqual(Opened, profile_aggregate:store_id()),
     ?assertEqual(Opened, organisation_aggregate:store_id()).
+
+%% The read model lives beside the event store, under the same directory.
+the_read_model_lives_beside_the_event_store_test() ->
+    ?assertEqual(filename:join(maps:get(dir, ?SERVICE:event_store()), "jobs.sqlite3"),
+                 project_jobs_sup:sqlite_path()).
 
 %% The data directory must be somewhere, and a laptop default is fine. What is
 %% not fine is shipping that default to a node, which is why the generated
@@ -230,3 +239,14 @@ climb(Dir, Name, Left) ->
 found(true, Candidate, _Dir, _Name, _Left) -> Candidate;
 found(false, _Candidate, Dir, Name, Left) ->
     climb(filename:dirname(Dir), Name, Left - 1).
+
+%% Every capability requires a sealed call, and macula refuses `required'
+%% without kem_advertise: a release that dropped the line would not boot, so
+%% the baked config is parsed (every ${VAR} filled with a dummy) and asserted.
+kem_advertise_is_enabled_test() ->
+    {ok, Text} = file:read_file(alongside("config/sys.config.src")),
+    Substituted = re:replace(Text, <<"\\$\\{[A-Z_]+\\}">>, <<"0">>, [global, {return, list}]),
+    {ok, Tokens, _} = erl_scan:string(Substituted),
+    {ok, Config} = erl_parse:parse_term(Tokens),
+    Macula = proplists:get_value(macula, Config),
+    ?assertEqual(enabled, proplists:get_value(kem_advertise, Macula)).

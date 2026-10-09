@@ -91,8 +91,13 @@
     %% and REFUSES a `{macula, puzzle_difficulty, _}' setting at
     %% application start whatever the value: a node that set one would
     %% believe it had chosen a difficulty that nothing reads.
+    %% kem_advertise: this node names its KEM key, so callers seal every
+    %% mcl-jobs call to it and a station on the path relays only ciphertext.
+    %% Every capability is `confidential => required' (profiles are personal
+    %% data), which mcl_om refuses to boot without this switch.
     {macula, [
-        {crypto_profile, pq_hybrid}
+        {crypto_profile, pq_hybrid},
+        {kem_advertise, enabled}
     ]},
     %% ==========================================================================
     %% EVOQ'S ADAPTER, WITHOUT WHICH THIS NODE DOES NOT BOOT

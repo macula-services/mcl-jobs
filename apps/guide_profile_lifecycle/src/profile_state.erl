@@ -36,6 +36,12 @@ apply_event(S, #{event_type := <<"profile_initiated_v1">>} = Ev) ->
             status = evoq_bit_flags:set(S#state.status, ?PROFILE_INITIATED)};
 apply_event(S, #{event_type := <<"profile_archived_v1">>}) ->
     S#state{status = evoq_bit_flags:set(S#state.status, ?PROFILE_ARCHIVED)};
+apply_event(S, #{event_type := <<"profile_described_v1">>}) ->
+    S#state{status = evoq_bit_flags:set(S#state.status, ?PROFILE_DESCRIBED)};
+apply_event(S, #{event_type := <<"profile_published_v1">>}) ->
+    S#state{status = evoq_bit_flags:set(S#state.status, ?PROFILE_PUBLISHED)};
+apply_event(S, #{event_type := <<"profile_withdrawn_v1">>}) ->
+    S#state{status = evoq_bit_flags:unset(S#state.status, ?PROFILE_PUBLISHED)};
 apply_event(S, _Unknown) ->
     S.
 

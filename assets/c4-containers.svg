@@ -45,14 +45,14 @@
 </style>
 <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="arrowhead" d="M0 0L10 5L0 10z"/></marker></defs>
 <rect class="bg" x="0" y="0" width="1000" height="600"/>
-<rect class="bound" x="24" y="40" width="620" height="420" rx="12"/>
+<rect class="bound" x="24" y="40" width="620" height="500" rx="12"/>
 <text class="t-bound" x="40" y="62">A lab box [docker, reconciled from the fleet repository]</text>
 <rect class="b-sys" x="44" y="76" width="580" height="120" rx="10"/>
 <text class="t-name" x="60" y="104">mcl-jobs service</text>
 <text class="t-type" x="60" y="122">[mcl_om mesh service, OCI image, OTP 28 release]</text>
 <text class="t-desc" x="60" y="146">Boots as an mcl_om service: identity key, realm admission, a mesh pool through</text>
 <text class="t-desc" x="60" y="162">two pinned stations, Org/info and /health. Opens its own reckon-db store first;</text>
-<text class="t-desc" x="60" y="178">the CMD divisions run against it.</text>
+<text class="t-desc" x="60" y="178">commands append there, projections fill the read model.</text>
 <rect class="b-cmp" x="44" y="220" width="280" height="112" rx="10"/>
 <text class="t-name" x="60" y="248">Identity key</text>
 <text class="t-type" x="60" y="266">[Named volume]</text>
@@ -64,10 +64,10 @@
 <text class="t-desc" x="360" y="290">mcl_jobs_store: every profile and</text>
 <text class="t-desc" x="360" y="306">organisation stream. Survives a</text>
 <text class="t-desc" x="360" y="322">recreate only because it is mounted</text>
-<rect class="b-cmp" x="44" y="356" width="580" height="84" rx="10"/>
-<text class="t-name" x="60" y="384">/health</text>
-<text class="t-type" x="60" y="402">[Unix socket /run/mcl/health.sock]</text>
-<text class="t-desc" x="60" y="426">The container healthcheck; internal to the box, not on the mesh.</text>
+<rect class="b-cmp" x="44" y="352" width="580" height="84" rx="10"/>
+<text class="t-name" x="60" y="380">/health</text>
+<text class="t-type" x="60" y="398">[Unix socket /run/mcl/health.sock]</text>
+<text class="t-desc" x="60" y="422">The container healthcheck; internal to the box, not on the mesh.</text>
 <rect class="b-mac" x="690" y="76" width="286" height="96" rx="10"/>
 <text class="t-name" x="706" y="104">Macula mesh</text>
 <text class="t-type" x="706" y="122">[Macula infrastructure]</text>
@@ -81,9 +81,9 @@
 <text class="t-type" x="706" y="346">[External system]</text>
 <text class="t-desc" x="706" y="370">The signed image, pinned by digest</text>
 <text class="t-desc" x="706" y="386">in the fleet repository</text>
-<rect class="b-later" x="44" y="476" width="580" height="60" rx="10"/>
-<text class="t-name" x="60" y="504">query_jobs read model</text>
-<text class="t-type" x="60" y="522">[planned: PRJ + QRY]</text>
+<rect class="b-cmp" x="44" y="452" width="580" height="68" rx="10"/>
+<text class="t-name" x="60" y="480">Read model</text>
+<text class="t-type" x="60" y="498">[jobs.sqlite3 beside the event store, on the data drive]</text>
 <path class="edge" d="M624 124H690" marker-end="url(#a)"/>
 <text class="t-rel" x="657" y="116" text-anchor="middle">joins</text>
 <path class="edge" d="M624 170H660V234H690" marker-end="url(#a)"/>

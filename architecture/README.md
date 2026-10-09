@@ -13,7 +13,7 @@ change the script, run it, and look at the result before committing.
 
 | Element | Role |
 |---------|------|
-| mcl-jobs | An `mcl_om` mesh service. Four lifecycle procedures (`mcl-jobs/initiate_profile`, `archive_profile`, `initiate_organisation`, `archive_organisation`); each profile and organisation kept as events in its own store. |
+| mcl-jobs | An `mcl_om` mesh service. Lifecycle procedures for profiles and organisations, query procedures to find them, every call sealed; events in its own store, a read model beside it. |
 | Citizen | Someone on the mesh with a profile, keyed by their node key. Initiates and archives only their own. |
 | Organisation | A company, cooperative or project, initiated by one node, the only one that may archive it. A profile appointed to act for one (a recruiter) is later work. |
 | macula-realm | Admits the service: its identity claim, its org `mcl-jobs`, the trust anchor callers verify. |
@@ -29,7 +29,9 @@ from the fleet repository, with its store on the box's data drive. What `mcl_om`
 volume, realm admission, a mesh pool through two pinned stations, `Org/info`,
 and `/health` on the Unix socket `/run/mcl/health.sock` (the container
 healthcheck, never on the mesh). What the service adds: its own reckon-db store,
-`mcl_jobs_store`, on the volume `MCL_DATA_DIR` points at.
+`mcl_jobs_store`, and the SQLite read model `jobs.sqlite3` beside it, both on the
+volume `MCL_DATA_DIR` points at. Every procedure requires a sealed call
+(`kem_advertise` enabled).
 
 ## Level 3: components
 
@@ -37,15 +39,17 @@ healthcheck, never on the mesh). What the service adds: its own reckon-db store,
 
 | Component | Department | What it does |
 |-----------|-----------|--------------|
-| `mcl_jobs_service` | service contract | The six `mcl_om_service` callbacks. Announces the four lifecycle procedures; asks for no topic authority. |
+| `mcl_jobs_service` | service contract | The six `mcl_om_service` callbacks. Announces eleven procedures, each `confidential => required`; asks for no topic authority. |
 | `mcl_jobs_app` | service contract | Opens `mcl_jobs_store` and its evoq subscription, then `mcl_om:boot/1`. |
-| `guide_profile_lifecycle` | CMD | Desks `initiate_profile/` and `archive_profile/`, each with its responder; `profile_aggregate`, one stream per caller node id. |
+| `guide_profile_lifecycle` | CMD | Desks `initiate_profile/`, `describe_profile/`, `publish_profile/`, `withdraw_profile/`, `archive_profile/`, each with its responder; `profile_aggregate`, one stream per caller node id. |
+| `project_jobs` | PRJ | One projection per event into `jobs.sqlite3` (profiles, organisations); each an upsert of its own columns, version-guarded where an event can set a value back. |
+| `query_jobs` | QRY | `get_profile_by_id`, `get_profiles_page`, `get_organisation_by_id`, `get_organisations_page`, each with its responder; `visible_profiles` is the one rule for who sees a profile. |
 | `guide_organisation_lifecycle` | CMD | Desks `initiate_organisation/` and `archive_organisation/`, each with its responder; `organisation_aggregate`, one stream per organisation id, carrying its name and initiator. |
 
 ### The lifecycle rules
 
 Both aggregates keep `status` as integer bit flags (`evoq_bit_flags`):
-`INITIATED = 1`, `ARCHIVED = 2`. The rules live in each aggregate's `execute/2`:
+`INITIATED = 1`, `ARCHIVED = 2`, and for a profile `DESCRIBED = 4`, `PUBLISHED = 8`. The rules live in each aggregate's `execute/2`:
 
 | Command | Refused with | When |
 |---------|--------------|------|
@@ -53,6 +57,9 @@ Both aggregates keep `status` as integer bit flags (`evoq_bit_flags`):
 | `archive_*_v1` | `not_initiated` | the dossier was never initiated |
 | `archive_organisation_v1` | `not_initiator` | the caller is not the node that initiated it (checked before `already_archived`, so a stranger learns nothing more) |
 | `archive_*_v1` | `already_archived` | the dossier was archived before |
+| `describe`, `publish`, `withdraw_profile_v1` | `not_initiated`, `profile_archived` | only a live profile changes |
+| `publish_profile_v1` | `not_described`, `already_published` | publishing needs a description, once |
+| `withdraw_profile_v1` | `not_published` | it was not published |
 
 Streams are addressed as `profile-<digest>` and `organisation-<digest>`, the
 first 128 bits of the SHA-256 of the key, because reckon-db accepts only
@@ -62,8 +69,7 @@ first 128 bits of the SHA-256 of the key, because reckon-db accepts only
 
 | What | Why it waits |
 |------|--------------|
-| Profile content (headline, experience, skills) | The skeleton proves the path first. |
-| `query_jobs` (PRJ + QRY) | No reader needs a read model yet. |
+| Search by skill or location | Finding by id and by page comes first. |
 | Appointments: a profile acting for an organisation | The recruiter role, after profiles and organisations exist. |
 
 Every procedure acts as its caller, and the reasons it can refuse with are

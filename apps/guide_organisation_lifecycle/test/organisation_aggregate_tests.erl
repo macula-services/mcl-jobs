@@ -97,7 +97,13 @@ the_name_is_required_test() ->
 the_name_is_printable_utf8_of_bounded_size_test_() ->
     [?_assertEqual({error, invalid_name}, new(#{name => N}))
      || N <- [<<"line\nbreak">>, <<"esc", 27, "[2J">>, <<16#c2, 16#85>>, <<255, 254>>,
-              binary:copy(<<"a">>, 201)]].
+              binary:copy(<<"a">>, 201),
+              <<"Acme", 16#e2, 16#80, 16#ae, "evil">>,     %% U+202E right-to-left override
+              <<"Ac", 16#e2, 16#80, 16#8b, "me">>]].       %% U+200B zero-width space
+
+the_name_is_kept_in_nfc_test() ->
+    {ok, Cmd} = new(#{name => <<"Cafe", 16#cc, 16#81>>}),
+    ?assertEqual(<<"Caf", 16#c3, 16#a9>>, initiate_organisation_v1:get_name(Cmd)).
 
 a_name_in_any_script_is_fine_test() ->
     ?assertMatch({ok, _}, new(#{name => <<"Coöperatie Zuid · 協同組合"/utf8>>})).

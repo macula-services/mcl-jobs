@@ -66,23 +66,37 @@ get_initiated_by(#initiate_organisation_v1{initiated_by = V}) -> V.
 checked({ok, Cmd}) -> validated(validate(Cmd), Cmd);
 checked({error, _} = E) -> E.
 
-validated(ok, Cmd) -> {ok, Cmd};
+%% The name is stored as validated: in its NFC form.
+validated(ok, #initiate_organisation_v1{name = Name} = Cmd) ->
+    {ok, Cmd#initiate_organisation_v1{name = unicode:characters_to_nfc_binary(Name)}};
 validated({error, _} = E, _Cmd) -> E.
 
 named(false, _Name) -> {error, invalid_organisation_id};
 named(true, <<>>) -> {error, missing_name};
-named(true, Name) -> printable(byte_size(Name) =< ?MAX_NAME_BYTES, Name).
+named(true, Name) -> printable(unicode:characters_to_nfc_binary(Name)).
 
-%% A name is well-formed UTF-8 with no control characters: it is shown to
-%% people, and nothing in it may steer a terminal or a log line.
-printable(false, _Name) -> {error, invalid_name};
-printable(true, Name) ->
-    plain(unicode:characters_to_list(Name, utf8)).
-
-plain(Chars) when is_list(Chars) ->
-    name_verdict(lists:all(fun(C) -> C >= 16#20 andalso not (C >= 16#7F andalso C =< 16#9F) end, Chars));
-plain(_Malformed) ->
+%% A name is shown to strangers in a public directory, where a reversed or
+%% invisibly padded name impersonates someone. So it is checked in its NFC
+%% form (the length counts NFC bytes) and refused when it is not UTF-8 or
+%% carries a control character (C0, DEL, C1) or an invisible format
+%% character: bidi embeddings, overrides and isolates, zero-width spaces and
+%% joiners, word joiners and invisible operators, line and paragraph
+%% separators, the BOM, the soft hyphen, the Arabic letter mark and the
+%% Mongolian vowel separator. The same rule as profile_description_text.
+printable(Nfc) when is_binary(Nfc), byte_size(Nfc) =< ?MAX_NAME_BYTES ->
+    name_verdict(lists:all(fun allowed/1, unicode:characters_to_list(Nfc)));
+printable(_Malformed) ->
     {error, invalid_name}.
 
 name_verdict(true) -> ok;
 name_verdict(false) -> {error, invalid_name}.
+
+allowed(C) when C < 16#20; C >= 16#7F, C =< 16#9F -> false;
+allowed(16#AD) -> false;
+allowed(16#61C) -> false;
+allowed(16#180E) -> false;
+allowed(C) when C >= 16#200B, C =< 16#200F -> false;
+allowed(C) when C >= 16#2028, C =< 16#202E -> false;
+allowed(C) when C >= 16#2060, C =< 16#206F -> false;
+allowed(16#FEFF) -> false;
+allowed(_) -> true.
