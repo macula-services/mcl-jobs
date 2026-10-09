@@ -106,12 +106,12 @@ by_me=$(jq -nc --arg c "$me" '{citizen: $c}')
 headline="Smoke test $org"
 description=$(jq -nc --arg h "$headline" '{headline: $h, skills: ["Erlang", "SQL"], location: "Nowhere"}')
 expect "describe_profile"              ok                "$(call "$founder" describe_profile "$description")"
-read_until "get_profile_by_id, owner: seen, published 0" '.profile.published == 0' \
+read_until "get_profile_by_id, owner: seen, published 0" '.published == 0' \
   "$founder" get_profile_by_id "$by_me"
 expect "get_profile_by_id, other key"  not_found         "$(call "$stranger" get_profile_by_id "$by_me")"
 expect "publish_profile"               ok                "$(call "$founder" publish_profile '{}')"
 read_until "get_profile_by_id, other key: seen, published 1" \
-  "(.profile.published == 1) and (.profile.headline == \"$headline\")" "$stranger" get_profile_by_id "$by_me"
+  "(.published == 1) and (.headline == \"$headline\")" "$stranger" get_profile_by_id "$by_me"
 listed=0
 for i in 1 2 3 4 5 6 7 8 9 10; do
   page_payload='{"limit": 50}'

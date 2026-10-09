@@ -36,7 +36,7 @@ are the wire contract.
 | `mcl-jobs/archive_profile` | `{}` | `{}`: final; nobody sees it again, and this key cannot initiate another |
 | `mcl-jobs/initiate_organisation` | `{"organisation_id", "name"}` | `{}`: the caller becomes its initiator |
 | `mcl-jobs/archive_organisation` | `{"organisation_id"}` | `{}`: only by its initiator |
-| `mcl-jobs/get_profile_by_id` | `{"citizen": "<64 hex>"}` | `{"profile": {citizen, headline, skills, location, published}}` |
+| `mcl-jobs/get_profile_by_id` | `{"citizen": "<64 hex>"}` | `{citizen, headline, skills, location, published}` |
 | `mcl-jobs/get_profiles_page` | `{"after"?, "limit"?}` | `{"profiles": [...], "next"?}`, in citizen order |
 | `mcl-jobs/get_organisation_by_id` | `{"organisation_id"}` | `{organisation_id, name, initiated_by, initiated_at, archived}` |
 | `mcl-jobs/get_organisations_page` | `{"after"?, "limit"?}` | `{"organisations": [...], "next"?}`, active ones in id order |
