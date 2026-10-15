@@ -38,7 +38,7 @@
 
 info() ->
     #{name => <<"mcl-jobs">>,
-      version => <<"0.2.3">>,
+      version => <<"0.2.4">>,
       description => <<"LinkedIn as it was intended, but over the Macula Mesh">>}.
 
 start(_Opts) -> mcl_jobs_sup:start_link().
