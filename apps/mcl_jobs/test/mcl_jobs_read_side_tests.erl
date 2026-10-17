@@ -84,6 +84,17 @@ seen_by(Who, Citizen) ->
 published({ok, #{published := P}}) -> {seen, P};
 published({error, Reason}) -> Reason.
 
+%% The described fields, or the read's error while the row is not there yet.
+%% `initiate' and `describe' are separate commands, so their projections land
+%% separately: a test that reads the fields after waiting only for the row to
+%% exist is racing the second projection, and reads the empty fields
+%% `initiate' wrote.
+described_fields(Who, Citizen) ->
+    fields(get_profile_by_id:find(hex(Citizen), Who)).
+
+fields({ok, #{headline := H, skills := S, location := L}}) -> {H, S, L};
+fields({error, Reason}) -> Reason.
+
 %%--------------------------------------------------------------------
 %% Profiles
 %%--------------------------------------------------------------------
@@ -91,6 +102,10 @@ published({error, Reason}) -> Reason.
 an_unpublished_profile_is_seen_only_by_its_owner() ->
     profile(initiate, ?ALICE, #{}),
     described(?ALICE, <<"Builds event stores">>),
+    %% Wait for the described row, not just for the row: the assertions below
+    %% read the fields `describe' writes.
+    eventually(fun() -> described_fields(?ALICE, ?ALICE) end,
+               {<<"Builds event stores">>, [<<"Erlang">>, <<"SQL">>], <<"Leuven">>}),
     eventually(fun() -> seen_by(?ALICE, ?ALICE) end, {seen, 0}),
     ?assertEqual(not_found, seen_by(?MALLORY, ?ALICE)),
     ?assertEqual(not_found, seen_by(undefined, ?ALICE)),
