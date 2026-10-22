@@ -101,8 +101,8 @@
 <text class="t-rel" x="482" y="436" text-anchor="end">appends</text>
 <path class="edge" d="M260 500V540" marker-end="url(#a)"/>
 <text class="t-rel" x="268" y="524">events</text>
-<path class="edge" d="M488 605H512" marker-end="url(#a)"/>
-<text class="t-rel" x="482" y="596" text-anchor="end">reads</text>
+<path class="edge" d="M512 605H488" marker-end="url(#a)"/>
+<text class="t-rel" x="500" y="592" text-anchor="middle">opens</text>
 <rect class="bound" x="16" y="710" width="968" height="120" rx="12"/>
 <text class="t-bound" x="32" y="732">Planned, not built</text>
 <rect class="b-later" x="32" y="740" width="456" height="76" rx="10"/>

@@ -42,9 +42,9 @@ Two CMD divisions keep their dossiers in the service's own event store,
 
 ## Procedures
 
-Every procedure is a CALL that acts as its **caller**, the node id that signed
-it (macula sets `caller` and overwrites any the payload sent), and **requires a
-sealed call**: the service names its KEM key and refuses a call in the clear, so
+Its own procedures are CALLs that act as their **caller**, the node id that signed
+the call (macula sets `caller` and overwrites any the payload sent), and each
+**requires a sealed call**: the service names its KEM key and refuses a call in the clear, so
 a profile crosses a station only as ciphertext. Each replies with its answer, or
 `{"reason": "<text>"}` naming the rule that refused it. Those reason strings
 are the wire contract.
@@ -86,7 +86,7 @@ answers by id, with `archived: 1`.
 | `no_caller` | the CALL carried no 32-byte node id |
 | `store_unavailable`, `internal_error` | the service's own fault; its log has it |
 
-Plus `mcl-jobs/info`, which `mcl_om` answers for every service.
+Plus `mcl-jobs/info` and `mcl-jobs/get_limits`, which `mcl_om` adds to every service.
 
 Known limits. A profile belongs to a node key, so whoever loses their key loses
 their profile, and archiving is final for that key. Organisation ids go to
@@ -140,12 +140,13 @@ what stops a config table in a README and the real environment drifting.
 ## Deployment
 
 The image has two channels. A push to `main` publishes
-`ghcr.io/macula-services/mcl-jobs:latest`, the deploy channel: a host that follows
-`:latest` deploys every merge. A `v*` tag publishes its own version and nothing
-else, the rollback archive: pin a host to one to roll back. A push that changes
+`ghcr.io/macula-services/mcl-jobs:latest`; a host configured to follow that tag
+picks up every merge, and the fleet instead pins a release digest. A `v*` tag
+publishes its own version and nothing else, the rollback archive: pin a host to
+one to roll back. A push that changes
 only documentation builds no image (`scripts/is_image_push.sh`).
 
-The service's org, the `<org>` in every procedure it offers (`<org>/<name>`), is
+The service's org, the `<org>` its own procedure names carry (`<org>/<name>`), is
 this repository's name, fixed in `config/sys.config.src`. The realm's grant names
 it; without an org mcl_om advertises nothing.
 
@@ -165,10 +166,11 @@ Six callbacks in `mcl_jobs_service`, all required, all resolved **by name** by
 attribute turns a missing one into a compile error rather than an `undef` where
 nobody is watching, and the eunit suite guards the attribute itself.
 
-mcl_om adds one capability of its own to every service: `mcl-jobs/info`, open to
-any mesh caller, answering the service's name, version, labels, health word and
-advertised procedures. It needs no code here, and this service may not declare
-a capability named `info`.
+mcl_om adds two capabilities of its own to every service. `mcl-jobs/info` is open
+to any mesh caller and answers the service's name, version, labels, health word
+and advertised procedures; `mcl-jobs/get_limits` is open too and answers guard
+limits and window stats for each named procedure, or for them all. It needs no code here, and this service may not declare
+a capability named `info`. `capabilities/0` in `mcl_jobs_service` is the list.
 
 ### The store
 

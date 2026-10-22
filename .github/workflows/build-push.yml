@@ -2,13 +2,12 @@
 #
 # TWO CHANNELS, AND A TAG PUSH MUST NOT TOUCH THE DEPLOY ONE.
 #
-#   push to main : publishes :latest        <- the deploy channel
+#   push to main : publishes :latest        <- floating tag
 #   push of v*   : publishes :<semver> ONLY <- the rollback archive
 #
-# The deployed compose tracks :latest under watchtower for zero-touch deploys,
-# and the semver tags stay published so a bad release can be pinned back to a
-# known one. A tag that also moved :latest would roll every box the moment a
-# release was cut, so cutting a release and deploying one are separate acts.
+# The semver tags stay published so a bad release can be pinned back to a
+# known one, and the fleet pins a release digest rather than a floating tag,
+# so cutting a release and deploying one are separate acts.
 #
 # NO PATH FILTER, ON PURPOSE. A docs-only push should not rebuild :latest and
 # restart every box, but `paths-ignore' cannot be trusted with that: on the push

@@ -4,8 +4,9 @@ This exists so a person's working life (their profile, the organisations they
 work with) lives on the Macula mesh rather than on a platform that owns it.
 
 **Status: eleven procedures of its own over two CMD divisions and one read model.** The
-service boots, joins the mesh, answers `mcl-jobs/info` and `/health` on its Unix
-socket, and serves every procedure only to a sealed call. Profiles and
+service boots, joins the mesh, answers `mcl-jobs/info` and `mcl-jobs/get_limits`,
+the pair `mcl_om` adds to every service, `/health` on its Unix socket, and answers
+its own procedures only to a sealed call. Profiles and
 organisations live in `mcl_jobs_store`; `jobs.sqlite3` answers the queries.
 Search and appointments are planned, not built.
 
@@ -24,7 +25,7 @@ change the script, run it, and look at the result before committing.
 | Organisation | A company, cooperative or project, initiated by one node, the only one that may archive it. A profile appointed to act for one (a recruiter) is later work. |
 | macula-realm | Admits the service: its identity claim, its org `mcl-jobs`, the trust anchor callers verify. |
 | Macula mesh | The pinned stations are the entry points; procedures and the DHT. |
-| Other mesh services | Call `mcl-jobs/info`, which `mcl_om` answers for every service: name, version, health word, procedures. |
+| Other mesh services | Call `mcl-jobs/info` and `mcl-jobs/get_limits`, which `mcl_om` adds to every service: name, version, health word, the advertised procedures, and each procedure's guard limits. |
 
 ## Level 2: containers
 
@@ -32,11 +33,11 @@ change the script, run it, and look at the result before committing.
 
 One OTP release in one image, run under docker on a lab box that reconciles
 from the fleet repository, with its store on the box's data drive. What `mcl_om` provides: the node identity key on a named
-volume, realm admission, a mesh pool through the pinned stations, `mcl-jobs/info`,
-and `/health` on the Unix socket `/run/mcl/health.sock` (the container
+volume, realm admission, a mesh pool through the pinned stations, `mcl-jobs/info`
+and `mcl-jobs/get_limits`, and `/health` on the Unix socket `/run/mcl/health.sock` (the container
 healthcheck, never on the mesh). What the service adds: its own reckon-db store,
 `mcl_jobs_store`, and the SQLite read model `jobs.sqlite3` beside it, both on the
-volume `MCL_DATA_DIR` points at. Every procedure requires a sealed call
+volume `MCL_DATA_DIR` points at. Each of its own procedures requires a sealed call
 (`kem_advertise` enabled).
 
 ## Level 3: components
@@ -78,7 +79,7 @@ first 128 bits of the SHA-256 of the key, because reckon-db accepts only
 | Search by skill or location | Finding by id and by page comes first. |
 | Appointments: a profile acting for an organisation | The recruiter role, after profiles and organisations exist. |
 
-Every procedure acts as its caller, and the reasons it can refuse with are
+Each of its own procedures acts as its caller, and the reasons it can refuse with are
 the wire contract in the [README](../README.md#procedures).
 
 ## Drawing them
