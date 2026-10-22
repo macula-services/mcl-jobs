@@ -29,8 +29,8 @@ services:
       # ⚠ THE SERVICE'S IDENTITY LIVES HERE. mcl_om generates the node key on
       # first boot and loads it on every boot after. The image declares this
       # path a VOLUME, and with nothing mounted docker gives each new container
-      # a fresh anonymous one, so every recreate (watchtower does them as
-      # routine) would mint a new node id while the service looks healthy.
+      # a fresh anonymous one, so every recreate of this container would mint a
+      # new node id while the service looks healthy.
       - secrets:/etc/mcl/secrets
       # ⚠ REQUIRED, BECAUSE THIS SERVICE OPENS A STORE. Without the mount the
       # record lives inside the container and every recreate destroys it, which
