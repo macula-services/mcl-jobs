@@ -141,7 +141,7 @@ def context():
 
 def containers():
     d = Diagram("c4-containers.svg", "mcl-jobs containers", 1000, 600)
-    d.bound(24, 40, 620, 500, "A lab box [docker, reconciled from the fleet repository]")
+    d.bound(24, 40, 620, 500, "A fleet box [docker, reconciled from the fleet repository]")
     d.box("b-sys", 44, 76, 580, 120, "mcl-jobs service", "[mcl_om mesh service, OCI image, OTP 28 release]",
           ["Boots as an mcl_om service: identity key, realm admission, a mesh pool through",
            "the pinned stations, mcl-jobs/info, get_limits and /health. Opens its own",

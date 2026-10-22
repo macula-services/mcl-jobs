@@ -31,7 +31,7 @@ change the script, run it, and look at the result before committing.
 
 ![mcl-jobs containers](../assets/c4-containers.svg)
 
-One OTP release in one image, run under docker on a lab box that reconciles
+One OTP release in one image, run under docker on a fleet box that reconciles
 from the fleet repository, with its store on the box's data drive. What `mcl_om` provides: the node identity key on a named
 volume, realm admission, a mesh pool through the pinned stations, `mcl-jobs/info`
 and `mcl-jobs/get_limits`, and `/health` on the Unix socket `/run/mcl/health.sock` (the container
