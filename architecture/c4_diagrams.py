@@ -144,8 +144,8 @@ def containers():
     d.bound(24, 40, 620, 500, "A lab box [docker, reconciled from the fleet repository]")
     d.box("b-sys", 44, 76, 580, 120, "mcl-jobs service", "[mcl_om mesh service, OCI image, OTP 28 release]",
           ["Boots as an mcl_om service: identity key, realm admission, a mesh pool through",
-           "two pinned stations, Org/info and /health. Opens its own reckon-db store first;",
-           "commands append there, projections fill the read model."])
+           "two pinned stations, mcl-jobs/info and /health. Opens its own reckon-db store",
+           "first; commands append there, projections fill the read model."])
     d.box("b-cmp", 44, 220, 280, 112, "Identity key", "[Named volume]",
           ["The node's identity key: its node", "id, the one the realm admits"])
     d.box("b-cmp", 344, 220, 280, 112, "Event store", "[data drive, mounted at /data]",
@@ -193,9 +193,9 @@ def components():
            "visible_profiles: published, or the caller's own."], code=True)
     d.edge("M200 344V390"); d.text("t-rel", 208, 372, "dispatch")
     d.edge("M740 344V366H400V390"); d.text("t-rel", 600, 360, "dispatch", anchor="middle")
-    d.edge("M488 445H512"); d.text("t-rel", 500, 436, "appends", anchor="middle")
+    d.edge("M488 445H512"); d.text("t-rel", 482, 436, "appends", anchor="end")
     d.edge("M260 500V540"); d.text("t-rel", 268, 524, "events")
-    d.edge("M488 605H512"); d.text("t-rel", 500, 596, "reads", anchor="middle")
+    d.edge("M488 605H512"); d.text("t-rel", 482, 596, "reads", anchor="end")
     d.bound(16, 710, 968, 120, "Planned, not built")
     d.box("b-later", 32, 740, 456, 76, "Appointments", "[later]", ["A profile acting for an organisation"])
     d.box("b-later", 512, 740, 456, 76, "Search", "[later]", ["By skill or location, not only by id"])
