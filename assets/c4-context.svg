@@ -60,8 +60,8 @@
 <rect class="b-sys" x="365" y="190" width="270" height="120" rx="10"/>
 <text class="t-name" x="381" y="218">mcl-jobs</text>
 <text class="t-type" x="381" y="236">[mcl_om mesh service]</text>
-<text class="t-desc" x="381" y="260">Lifecycle and query procedures, all</text>
-<text class="t-desc" x="381" y="276">sealed; events in its own store, a</text>
+<text class="t-desc" x="381" y="260">Lifecycle and query procedures of</text>
+<text class="t-desc" x="381" y="276">its own, all sealed; events in its own store, a</text>
 <text class="t-desc" x="381" y="292">read model beside it</text>
 <rect class="b-mac" x="40" y="190" width="270" height="120" rx="10"/>
 <text class="t-name" x="56" y="218">macula-realm</text>

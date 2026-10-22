@@ -123,7 +123,7 @@ def context():
     d.box("b-per", 690, 30, 270, 96, "Organisation", "[Person or group]",
           ["Initiated by one node, the only", "one that may archive it"], person=True)
     d.box("b-sys", 365, 190, 270, 120, "mcl-jobs", "[mcl_om mesh service]",
-          ["Lifecycle and query procedures, all", "sealed; events in its own store, a", "read model beside it"])
+          ["Lifecycle and query procedures of", "its own, all sealed; events in its own store, a", "read model beside it"])
     d.box("b-mac", 40, 190, 270, 120, "macula-realm", "[Macula infrastructure]",
           ["Admits the service: its identity", "claim, its org mcl-jobs, the trust", "anchor every caller verifies"])
     d.box("b-ext", 690, 190, 270, 120, "Other mesh services", "[External systems]",
@@ -172,7 +172,7 @@ def components():
     d = Diagram("c4-components.svg", "mcl-jobs components", 1000, 880)
     d.bound(16, 40, 968, 650, "mcl-jobs service [Container]")
     d.box("b-cmp", 32, 70, 456, 100, "mcl_jobs_service", "[mcl_om_service module]",
-          ["Eleven procedures, every one requiring a sealed", "call; mcl_om adds mcl-jobs/info and /health"], code=True)
+          ["Eleven procedures of its own, each a sealed", "call; mcl_om adds mcl-jobs/info and get_limits"], code=True)
     d.box("b-cmp", 512, 70, 456, 100, "mcl_jobs_app", "[OTP application]",
           ["Opens mcl_jobs_store and its evoq", "subscription, then mcl_om:boot/1"], code=True)
     d.box("b-sys", 32, 194, 456, 150, "guide_profile_lifecycle", "[CMD division]",

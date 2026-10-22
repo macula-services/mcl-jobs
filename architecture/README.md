@@ -3,7 +3,7 @@
 This exists so a person's working life (their profile, the organisations they
 work with) lives on the Macula mesh rather than on a platform that owns it.
 
-**Status: eleven procedures over two CMD divisions and one read model.** The
+**Status: eleven procedures of its own over two CMD divisions and one read model.** The
 service boots, joins the mesh, answers `mcl-jobs/info` and `/health` on its Unix
 socket, and serves every procedure only to a sealed call. Profiles and
 organisations live in `mcl_jobs_store`; `jobs.sqlite3` answers the queries.
@@ -19,7 +19,7 @@ change the script, run it, and look at the result before committing.
 
 | Element | Role |
 |---------|------|
-| mcl-jobs | An `mcl_om` mesh service. Lifecycle procedures for profiles and organisations, query procedures to find them, every call sealed; events in its own store, a read model beside it. |
+| mcl-jobs | An `mcl_om` mesh service. Lifecycle procedures for profiles and organisations, query procedures to find them, every procedure of its own sealed; events in its own store, a read model beside it. |
 | Citizen | Someone on the mesh with a profile, keyed by their node key. Initiates and archives only their own. |
 | Organisation | A company, cooperative or project, initiated by one node, the only one that may archive it. A profile appointed to act for one (a recruiter) is later work. |
 | macula-realm | Admits the service: its identity claim, its org `mcl-jobs`, the trust anchor callers verify. |
@@ -45,7 +45,7 @@ volume `MCL_DATA_DIR` points at. Every procedure requires a sealed call
 
 | Component | Department | What it does |
 |-----------|-----------|--------------|
-| `mcl_jobs_service` | service contract | The six `mcl_om_service` callbacks. Announces eleven procedures, each `confidential => required`; asks for no topic authority. |
+| `mcl_jobs_service` | service contract | The six `mcl_om_service` callbacks. Announces eleven procedures of its own, each `confidential => required`; asks for no topic authority. |
 | `mcl_jobs_app` | service contract | Opens `mcl_jobs_store` and its evoq subscription, then `mcl_om:boot/1`. |
 | `guide_profile_lifecycle` | CMD | Desks `initiate_profile/`, `describe_profile/`, `publish_profile/`, `withdraw_profile/`, `archive_profile/`, each with its responder; `profile_aggregate`, one stream per caller node id. |
 | `project_jobs` | PRJ | One projection per event into `jobs.sqlite3` (profiles, organisations); each an upsert of its own columns, version-guarded where an event can set a value back. |
