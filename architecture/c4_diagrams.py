@@ -129,7 +129,7 @@ def context():
     d.box("b-ext", 690, 190, 270, 120, "Other mesh services", "[External systems]",
           ["Anything on the mesh that asks", "mcl-jobs/info what it is, which", "version, how healthy"])
     d.box("b-mac", 365, 400, 270, 110, "Macula mesh", "[Macula infrastructure]",
-          ["Two pinned stations are its entry", "points (QUIC); procedures and", "the DHT"])
+          ["The pinned stations are its entry", "points (QUIC); procedures and", "the DHT"])
     d.edge("M175 126V160H420V190"); d.text("t-rel", 300, 152, "initiates, archives own profile", anchor="middle")
     d.edge("M825 126V160H580V190"); d.text("t-rel", 760, 152, "initiates, archives its own", anchor="middle")
     d.edge("M365 250H310"); d.text("t-rel", 337, 240, "boot", anchor="middle"); d.text("t-rel", 337, 272, "claim", anchor="middle")
@@ -144,7 +144,7 @@ def containers():
     d.bound(24, 40, 620, 500, "A lab box [docker, reconciled from the fleet repository]")
     d.box("b-sys", 44, 76, 580, 120, "mcl-jobs service", "[mcl_om mesh service, OCI image, OTP 28 release]",
           ["Boots as an mcl_om service: identity key, realm admission, a mesh pool through",
-           "two pinned stations, mcl-jobs/info and /health. Opens its own reckon-db store",
+           "the pinned stations, mcl-jobs/info and /health. Opens its own reckon-db store",
            "first; commands append there, projections fill the read model."])
     d.box("b-cmp", 44, 220, 280, 112, "Identity key", "[Named volume]",
           ["The node's identity key: its node", "id, the one the realm admits"])
@@ -153,7 +153,7 @@ def containers():
     d.box("b-cmp", 44, 352, 580, 84, "/health", "[Unix socket /run/mcl/health.sock]",
           ["The container healthcheck; internal to the box, not on the mesh."])
     d.box("b-mac", 690, 76, 286, 96, "Macula mesh", "[Macula infrastructure]",
-          ["Entry: two pinned stations (QUIC)"])
+          ["Entry: the pinned stations (QUIC)"])
     d.box("b-mac", 690, 190, 286, 88, "macula-realm", "[Macula infrastructure]",
           ["Admission; trust anchor"])
     d.box("b-ext", 690, 300, 286, 96, "ghcr.io", "[External system]",

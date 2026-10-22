@@ -23,7 +23,7 @@ change the script, run it, and look at the result before committing.
 | Citizen | Someone on the mesh with a profile, keyed by their node key. Initiates and archives only their own. |
 | Organisation | A company, cooperative or project, initiated by one node, the only one that may archive it. A profile appointed to act for one (a recruiter) is later work. |
 | macula-realm | Admits the service: its identity claim, its org `mcl-jobs`, the trust anchor callers verify. |
-| Macula mesh | Two pinned stations are the entry points; procedures and the DHT. |
+| Macula mesh | The pinned stations are the entry points; procedures and the DHT. |
 | Other mesh services | Call `mcl-jobs/info`, which `mcl_om` answers for every service: name, version, health word, procedures. |
 
 ## Level 2: containers
@@ -32,7 +32,7 @@ change the script, run it, and look at the result before committing.
 
 One OTP release in one image, run under docker on a lab box that reconciles
 from the fleet repository, with its store on the box's data drive. What `mcl_om` provides: the node identity key on a named
-volume, realm admission, a mesh pool through two pinned stations, `Org/info`,
+volume, realm admission, a mesh pool through the pinned stations, `Org/info`,
 and `/health` on the Unix socket `/run/mcl/health.sock` (the container
 healthcheck, never on the mesh). What the service adds: its own reckon-db store,
 `mcl_jobs_store`, and the SQLite read model `jobs.sqlite3` beside it, both on the
@@ -98,6 +98,8 @@ plain classes plus a `prefers-color-scheme` dark block, never CSS custom
 properties, which `rsvg-convert` renders black.
 
 The check that keeps them here is the `c4-model` job in
-`.github/workflows/build-push.yml`. It is red until a context diagram and a
+`.github/workflows/c4-model.yml`. It is red until a context diagram and a
 component diagram exist and are shown, and it stays red if either one goes
 missing.
+
+**Where the station list comes from.** It is not in `config/sys.config.src`: `mcl_om` reads `MACULA_STATION_SEEDS` and `MACULA_STATION_NODE_IDS` from the environment at boot, paired index for index, so this repository pins no station and the list may be any length.

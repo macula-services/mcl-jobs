@@ -51,7 +51,7 @@
 <text class="t-name" x="60" y="104">mcl-jobs service</text>
 <text class="t-type" x="60" y="122">[mcl_om mesh service, OCI image, OTP 28 release]</text>
 <text class="t-desc" x="60" y="146">Boots as an mcl_om service: identity key, realm admission, a mesh pool through</text>
-<text class="t-desc" x="60" y="162">two pinned stations, mcl-jobs/info and /health. Opens its own reckon-db store</text>
+<text class="t-desc" x="60" y="162">the pinned stations, mcl-jobs/info and /health. Opens its own reckon-db store</text>
 <text class="t-desc" x="60" y="178">first; commands append there, projections fill the read model.</text>
 <rect class="b-cmp" x="44" y="220" width="280" height="112" rx="10"/>
 <text class="t-name" x="60" y="248">Identity key</text>
@@ -71,7 +71,7 @@
 <rect class="b-mac" x="690" y="76" width="286" height="96" rx="10"/>
 <text class="t-name" x="706" y="104">Macula mesh</text>
 <text class="t-type" x="706" y="122">[Macula infrastructure]</text>
-<text class="t-desc" x="706" y="146">Entry: two pinned stations (QUIC)</text>
+<text class="t-desc" x="706" y="146">Entry: the pinned stations (QUIC)</text>
 <rect class="b-mac" x="690" y="190" width="286" height="88" rx="10"/>
 <text class="t-name" x="706" y="218">macula-realm</text>
 <text class="t-type" x="706" y="236">[Macula infrastructure]</text>
