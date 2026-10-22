@@ -32,7 +32,7 @@ change the script, run it, and look at the result before committing.
 
 One OTP release in one image, run under docker on a lab box that reconciles
 from the fleet repository, with its store on the box's data drive. What `mcl_om` provides: the node identity key on a named
-volume, realm admission, a mesh pool through the pinned stations, `Org/info`,
+volume, realm admission, a mesh pool through the pinned stations, `mcl-jobs/info`,
 and `/health` on the Unix socket `/run/mcl/health.sock` (the container
 healthcheck, never on the mesh). What the service adds: its own reckon-db store,
 `mcl_jobs_store`, and the SQLite read model `jobs.sqlite3` beside it, both on the
@@ -89,7 +89,7 @@ the wire contract in the [README](../README.md#procedures).
 the callbacks and the eleven capabilities in `mcl_jobs_service.erl`, the store
 wiring in `mcl_jobs_app.erl`, the modules and stream ids in the two CMD
 divisions, `project_jobs` and `query_jobs`, the dependencies in `rebar.config`,
-the port and volumes in the `Containerfile` and `deploy/docker-compose.yml`. When
+the volumes in the `Containerfile` and `deploy/docker-compose.yml`. When
 one of those changes, the diagram changes in the same commit.
 
 Two rules for the files themselves, so they render everywhere they are read
