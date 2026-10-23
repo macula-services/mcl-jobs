@@ -123,18 +123,18 @@ def context():
     d.box("b-per", 690, 30, 270, 96, "Organisation", "[Person or group]",
           ["Initiated by one node, the only", "one that may archive it"], person=True)
     d.box("b-sys", 365, 190, 270, 120, "mcl-jobs", "[mcl_om mesh service]",
-          ["Lifecycle and query procedures of", "its own, all sealed; events in its own store, a", "read model beside it"])
+          ["Lifecycle and query procedures of", "its own, sealed; events in its own store, a", "read model beside it"])
     d.box("b-mac", 40, 190, 270, 120, "macula-realm", "[Macula infrastructure]",
           ["Admits the service: its identity", "claim, its org mcl-jobs, the trust", "anchor every caller verifies"])
     d.box("b-ext", 690, 190, 270, 120, "Other mesh services", "[External systems]",
-          ["Anything on the mesh that asks", "mcl-jobs/info what it is, which", "version, how healthy"])
+          ["Anything on the mesh that asks", "info and get_limits: what it is,", "which version, how healthy"])
     d.box("b-mac", 365, 400, 270, 110, "Macula mesh", "[Macula infrastructure]",
           ["The pinned stations are its entry", "points (QUIC); procedures and", "the DHT"])
     d.edge("M175 126V160H420V190"); d.text("t-rel", 300, 152, "initiates, archives own profile", anchor="middle")
     d.edge("M825 126V160H580V190"); d.text("t-rel", 760, 152, "initiates, archives its own", anchor="middle")
     d.edge("M365 250H310"); d.text("t-rel", 337, 240, "boot", anchor="middle"); d.text("t-rel", 337, 272, "claim", anchor="middle")
     d.edge("M500 310V400"); d.text("t-rel", 508, 360, "joins, answers mcl-jobs/*")
-    d.edge("M825 310V455H635"); d.text("t-rel", 833, 380, "calls mcl-jobs/info")
+    d.edge("M825 310V455H635"); d.text("t-rel", 833, 380, "calls info and get_limits")
     d.legend(530, boundary=False)
     d.write()
 

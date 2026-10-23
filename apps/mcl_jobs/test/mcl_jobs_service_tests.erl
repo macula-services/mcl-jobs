@@ -240,9 +240,10 @@ found(true, Candidate, _Dir, _Name, _Left) -> Candidate;
 found(false, _Candidate, Dir, Name, Left) ->
     climb(filename:dirname(Dir), Name, Left - 1).
 
-%% Every capability requires a sealed call, and macula refuses `required'
-%% without kem_advertise: a release that dropped the line would not boot, so
-%% the baked config is parsed (every ${VAR} filled with a dummy) and asserted.
+%% Each capability of its own requires a sealed call, and macula refuses
+%% `required' without kem_advertise: a release that dropped the line would not
+%% boot, so the baked config is parsed (every ${VAR} filled with a dummy) and
+%% asserted.
 kem_advertise_is_enabled_test() ->
     {ok, Text} = file:read_file(alongside("config/sys.config.src")),
     Substituted = re:replace(Text, <<"\\$\\{[A-Z_]+\\}">>, <<"0">>, [global, {return, list}]),

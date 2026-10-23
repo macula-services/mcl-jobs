@@ -27,8 +27,9 @@
 ## Status
 
 The service boots, joins the mesh and answers `/health` on its Unix socket,
-`/run/mcl/health.sock` inside the container. `mcl_om` answers `mcl-jobs/info` on
-the mesh for it: name, version, health word, procedures.
+`/run/mcl/health.sock` inside the container. `mcl_om` answers `mcl-jobs/info`
+(name, version, health word, procedures) and `mcl-jobs/get_limits` on the mesh
+for it.
 
 Two CMD divisions keep their dossiers in the service's own event store,
 `mcl_jobs_store`, and a read side answers from a SQLite read model beside it:
@@ -148,7 +149,7 @@ only documentation builds no image (`scripts/is_image_push.sh`).
 
 The service's org, the `<org>` its own procedure names carry (`<org>/<name>`), is
 this repository's name, fixed in `config/sys.config.src`. The realm's grant names
-it; without an org mcl_om advertises nothing.
+it; without an org mcl_om refuses to boot, naming the setting.
 
 Two things CI cannot do for you, both of which have bitten:
 
@@ -156,8 +157,8 @@ Two things CI cannot do for you, both of which have bitten:
    the host with a bare `unauthorized` that names nothing. Check it after the
    first build. On ghcr the `org.opencontainers.image.source` label in the
    Containerfile is what links the package to the repository.
-2. The host needs `MCL_REALM` and the pinned station pair supplied from
-   somewhere they are not committed.
+2. The host needs `MCL_REALM` and the pinned station seeds and node ids supplied
+   from somewhere they are not committed.
 
 ## The service contract
 

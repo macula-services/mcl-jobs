@@ -9,8 +9,8 @@
 # known one, and the fleet pins a release digest rather than a floating tag,
 # so cutting a release and deploying one are separate acts.
 #
-# NO PATH FILTER, ON PURPOSE. A docs-only push should not rebuild :latest and
-# restart every box, but `paths-ignore' cannot be trusted with that: on the push
+# NO PATH FILTER, ON PURPOSE. A docs-only push would build an image nothing
+# follows, but `paths-ignore' cannot be trusted with that: on the push
 # that CREATES a branch GitHub evaluates it on the head commit alone, so a first
 # push ending in a README edit silently built no image. scripts/is_image_push.sh
 # decides from the pushed range instead, and builds whenever it cannot tell.
@@ -29,11 +29,9 @@ on:
     tags:     ['v*']
   workflow_dispatch:
 
-# ONE IMAGE BUILD IN FLIGHT PER REF. Every push to main builds and pushes
-# :latest; without this, three quick commits run three builds that finish in
-# whatever order the runners please, and :latest ends up being whichever
-# finished LAST, not whichever was pushed last -- watchtower then rolls the
-# fleet onto an older commit and flaps. A sibling service hit exactly that live.
+# ONE IMAGE BUILD IN FLIGHT PER REF. Without this, three quick commits run
+# three builds that finish in whatever order the runners please, and :latest
+# could end up naming the older one. A sibling service hit exactly that live.
 # A newer push to a branch or tag QUEUES behind the run in flight, never
 # cancels it: a cancelled run could already have pushed its image and not yet
 # signed it (mcl-om#9). Pull-request runs push nothing, so they still cancel.

@@ -7,6 +7,7 @@
 # again and again against the same deployment and never collides with itself:
 #
 #   mcl-jobs/info                       answers, with a version
+#                                       (`get_limits` is open too, not checked here)
 #   initiate_profile                    ok          (the caller's own profile)
 #   initiate_profile again              already_initiated
 #   describe_profile                    ok
@@ -26,8 +27,9 @@
 #   archive_organisation again          already_archived
 #   get_organisation_by_id              archived 1, the name
 #
-# Every call must come back SEALED (encrypted to the service's KEM key): the
-# procedures refuse a clear call, and a reply that says sealed 0 fails.
+# Every call to one of its own procedures must come back SEALED (encrypted to
+# the service's KEM key): the procedures refuse a clear call, and a reply that
+# says sealed 0 fails.
 #
 # Reads go through the read model, which projections fill asynchronously, so
 # a read is retried for a few seconds before it counts as a failure.
