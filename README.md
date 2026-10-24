@@ -141,8 +141,9 @@ what stops a config table in a README and the real environment drifting.
 ## Deployment
 
 The image has two channels. A push to `main` publishes
-`ghcr.io/macula-services/mcl-jobs:latest`, a floating tag no box follows. A `v*`
-tag publishes its own version and nothing else, and that is the deploy:
+`ghcr.io/macula-services/mcl-jobs:latest`, a floating tag the fleet instead
+ignores, pinning a digest. A `v*` tag publishes its own version and nothing else,
+and that is the deploy:
 macula-fleet's pin-releases workflow takes the newest signed `X.Y.Z` on this
 image's track, verifies it and commits `<version>@sha256:<digest>` to its own
 tree, canary first (macula-fleet `edge/gitops/release-targets`:78-79). The semver

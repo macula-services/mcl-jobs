@@ -2,7 +2,7 @@
 #
 # TWO CHANNELS, AND ONLY A TAG DEPLOYS.
 #
-#   push to main : publishes :latest        <- a floating tag no box follows
+#   push to main : publishes :latest        <- a floating tag; the fleet instead pins a digest
 #   push of v*   : publishes :<semver> ONLY <- what macula-fleet pins and deploys
 #
 # The semver tags stay published so a bad release can be pinned back to a known
@@ -10,7 +10,7 @@
 # the newest signed `X.Y.Z` on this image's track, verifies its signature, SBOM and
 # provenance, and commits `<version>@sha256:<digest>` to its own tree, canary first
 # (macula-fleet `edge/gitops/release-targets`:78-79; macula-fleet#14). A push to
-# main deploys nothing, because no box follows `:latest`.
+# main deploys nothing: the boxes instead run the digest that pin names.
 #
 # NO PATH FILTER, ON PURPOSE. A docs-only push would build an image nothing
 # follows, but `paths-ignore' cannot be trusted with that: on the push
