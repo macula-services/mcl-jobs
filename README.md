@@ -141,11 +141,13 @@ what stops a config table in a README and the real environment drifting.
 ## Deployment
 
 The image has two channels. A push to `main` publishes
-`ghcr.io/macula-services/mcl-jobs:latest`; a host configured to follow that tag
-picks up every merge, and the fleet instead pins a release digest. A `v*` tag
-publishes its own version and nothing else, the rollback archive: pin a host to
-one to roll back. A push that changes
-only documentation builds no image (`scripts/is_image_push.sh`).
+`ghcr.io/macula-services/mcl-jobs:latest`, a floating tag no box follows. A `v*`
+tag publishes its own version and nothing else, and that is the deploy:
+macula-fleet's pin-releases workflow takes the newest signed `X.Y.Z` on this
+image's track, verifies it and commits `<version>@sha256:<digest>` to its own
+tree, canary first (macula-fleet `edge/gitops/release-targets`:78-79). The semver
+tags stay published, so a bad release can be pinned back to a known one. A push
+that changes only documentation builds no image (`scripts/is_image_push.sh`).
 
 The service's org, the `<org>` its own procedure names carry (`<org>/<name>`), is
 this repository's name, fixed in `config/sys.config.src`. The realm's grant names

@@ -1,13 +1,16 @@
 # Build the OCI image for mcl-jobs and push to the registry.
 #
-# TWO CHANNELS, AND A TAG PUSH MUST NOT TOUCH THE DEPLOY ONE.
+# TWO CHANNELS, AND ONLY A TAG DEPLOYS.
 #
-#   push to main : publishes :latest        <- floating tag
-#   push of v*   : publishes :<semver> ONLY <- the rollback archive
+#   push to main : publishes :latest        <- a floating tag no box follows
+#   push of v*   : publishes :<semver> ONLY <- what macula-fleet pins and deploys
 #
-# The semver tags stay published so a bad release can be pinned back to a
-# known one, and the fleet pins a release digest rather than a floating tag,
-# so cutting a release and deploying one are separate acts.
+# The semver tags stay published so a bad release can be pinned back to a known
+# one. A green `v*` tag IS the deploy: macula-fleet's pin-releases workflow takes
+# the newest signed `X.Y.Z` on this image's track, verifies its signature, SBOM and
+# provenance, and commits `<version>@sha256:<digest>` to its own tree, canary first
+# (macula-fleet `edge/gitops/release-targets`:78-79; macula-fleet#14). A push to
+# main deploys nothing, because no box follows `:latest`.
 #
 # NO PATH FILTER, ON PURPOSE. A docs-only push would build an image nothing
 # follows, but `paths-ignore' cannot be trusted with that: on the push
