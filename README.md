@@ -50,6 +50,13 @@ a profile crosses a station only as ciphertext. Each replies with its answer, or
 `{"reason": "<text>"}` naming the rule that refused it. Those reason strings
 are the wire contract.
 
+Every one of them is **open to any caller**: the capability states `auth => open`,
+which is what the link did before macula 18 required the policy to be named
+(macula#147). The seal and the caller identity on the call are the gate, not the
+caller's realm membership — a profile is visible to the realm once published and
+to its owner while withdrawn, whoever is asking. Narrowing the procedures to
+`{callers, members}` is a separate decision and a separate release.
+
 | Procedure | Payload | Answer |
 |-----------|---------|--------|
 | `mcl-jobs/initiate_profile` | `{}` | `{}`: the caller's own profile exists |
