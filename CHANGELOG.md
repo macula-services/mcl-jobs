@@ -5,17 +5,34 @@ All notable changes to this project are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## 0.4.0 - 2026-10-30
 
-- **macula is declared, at 16** (macula-codebase-checks#4, #14). The
+Refs macula-services/mcl-om#42, the migration of the mcl-* services onto
+mcl_om 1.6 and macula 18.
+
+- **On mcl_om 1.6 and macula 18, and the service now writes its caller
+  decision down.** `mcl_om` moves to `~> 1.6` and `macula` to `~> 18.0`; 18
+  still speaks wire 1.0, so this service still speaks to every wire 1.0 box.
+  What it brings is a refusal at boot, not a default (macula-io/macula#147):
+  a capability that names a handler must name who may call it, and mcl_om
+  refuses the boot otherwise. All eleven procedures declare `auth => open`,
+  which is the policy they had -- the link ran no gate, the caller is named on
+  the call, and a profile crosses a station only as ciphertext. Narrowing
+  them to `{callers, members}` is a separate decision and a separate release.
+  This service declares no mesh subscription, so the rule's other half --
+  `sources` on a subscription -- does not reach it.
+- **macula is declared, at 18** (macula-codebase-checks#4, #14). The
   service called macula modules and compiled against `macula_response`
   without declaring the application: it arrived transitively through
   `mcl_om`, so a rebuild took whatever major the newest mcl_om carried.
-  `macula` is now a direct dependency at `~> 16.0` and `mcl_om` is at
-  `~> 1.4`, the release whose own base is macula 16. 16.0 keeps wire 1.0,
-  so this service still speaks to every wire 1.0 box; what it adds is the
-  revocation bound (macula#118). This service gates no overlay and issues
-  no endorsement.
+  `macula` is now a direct dependency. 18 keeps wire 1.0; over 16 it brings
+  the two caller rules above and carries 16's revocation bound
+  (macula#118), which changes nothing here -- this service gates no overlay
+  and issues no endorsement.
+- 0.3.0 -> 0.4.0 in the three carriers: the relx release, `mcl_jobs.app.src`
+  and the service's `info/0`. The four other applications ship inside this
+  release at their own 0.1.0, unchanged since the scaffold.
+
 
 ## 0.3.0 - 2026-10-17
 

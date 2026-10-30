@@ -76,6 +76,9 @@ announces_the_lifecycle_and_query_procedures_test() ->
                   <<"get_organisation_by_id">>, <<"get_organisations_page">>],
                  [N || #{name := N} <- Caps]),
     ?assertEqual([required], lists:usort([maps:get(confidential, C, absent) || C <- Caps])),
+    %% mcl_om 1.6 refuses a handler-bearing capability that names no caller
+    %% policy (macula#147), so each one states it, and each state its decision.
+    ?assertEqual([open], lists:usort([maps:get(auth, C, absent) || C <- Caps])),
     [?assert(lists:member({behaviour, [macula_response]}, M:module_info(attributes)))
      || #{handler := {M, _}} <- Caps].
 

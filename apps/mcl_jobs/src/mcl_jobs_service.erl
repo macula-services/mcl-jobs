@@ -38,7 +38,7 @@
 
 info() ->
     #{name => <<"mcl-jobs">>,
-      version => <<"0.3.0">>,
+      version => <<"0.4.0">>,
       description => <<"LinkedIn as it was intended, but over the Macula Mesh">>}.
 
 start(_Opts) -> mcl_jobs_sup:start_link().
@@ -65,8 +65,17 @@ capabilities() ->
 %% Each is answered by <name>_responder, names the KEM key (kem_advertise in
 %% sys.config) and refuses a call in the clear: a profile is personal data,
 %% and crosses a station only as ciphertext.
+%%
+%% `auth => open' IS THE DECISION, WRITTEN DOWN. macula 18 has no default
+%% (macula#147) and mcl_om refuses a handler-bearing capability that names no
+%% policy, so the policy every one of these had -- the link ran no gate, the
+%% caller is named on the call, and the payload itself is the seal -- is now
+%% stated instead of assumed. `{callers, members}' would narrow every procedure
+%% to the realm and is the move to make when a live endorsement makes realm
+%% membership mean something on the stations; it is not made here, because a
+%% migration that also changes who can knock is a different release.
 procedure(Name) ->
-    #{name => Name, version => 1, confidential => required,
+    #{name => Name, version => 1, confidential => required, auth => open,
       handler => {binary_to_atom(<<Name/binary, "_responder">>), []}}.
 
 %% THE AUTHORITY THIS SERVICE ASKS THE REALM FOR, and deliberately nothing more.
