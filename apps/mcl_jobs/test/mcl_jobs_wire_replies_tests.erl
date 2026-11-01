@@ -92,8 +92,9 @@ every_success_reply_carries_the_table_keys() ->
     Calls = Seen ++ Reads ++ Ends,
     [?assertEqual({Name, conforms}, {Name, conforms(Name, Reply)}) || {Name, Reply} <- Calls],
     %% Both shapes of a page were seen, with and without `next'.
-    Pages = [lists:member(<<"next">>, maps:keys(R)) || {N, R} <- Calls, N =:= <<"get_profiles_page">>],
-    ?assertEqual([true, false], Pages),
+    [?assertEqual({Page, [true, false]},
+                  {Page, [lists:member(<<"next">>, maps:keys(R)) || {N, R} <- Calls, N =:= Page]})
+     || Page <- [<<"get_profiles_page">>, <<"get_organisations_page">>]],
     ?assertEqual(lists:sort(proplists:get_keys(replies())),
                  lists:usort([Name || {Name, _} <- Calls])).
 
