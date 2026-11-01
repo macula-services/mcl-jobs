@@ -18,6 +18,11 @@ Refs macula-services/mcl-jobs#9.
   publishes, and `mcl_jobs_image_channels_tests` holds the workflow to it;
   `scripts/promote_latest_test.sh` proves the promotion against a local
   registry on every change.
+- **A known-vulnerable dependency cannot ship** (Refs #6). `lint-and-test`
+  calls macula-ci-images' `dependency-advisories` workflow, pinned by commit,
+  for the Erlang build, in a digest-pinned `macula-ci-otp` image on a hosted
+  runner. It runs on every change, and the release waits on it.
+  `mcl_jobs_advisories_tests` holds both workflows to that.
 - **No image from a red commit.** `build-and-push` now waits on
   `lint-and-test`, called on the commit it builds.
 

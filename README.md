@@ -123,6 +123,11 @@ digest in the two `FROM` lines of the `Containerfile`. The builder carries the
 whole toolchain (OTP 28.4.3 with ML-DSA, rebar3, Rust for macula's NIFs), so
 building needs nothing on the host but podman or docker. CI lints and tests in
 that same builder image, and the service's tests fail if the two drift apart.
+It also scans every dependency the release resolves for a published advisory
+(macula-ci-images' shared `dependency-advisories` workflow, osv-scanner over the
+resolved `rebar.lock`), and no image is built while that scan is red. There is
+no baseline: an advisory is fixed, or waived in `.github/advisories-waivers.txt`
+by a dated, named, expiring row.
 
     podman build -t mcl-jobs -f Containerfile .
 
