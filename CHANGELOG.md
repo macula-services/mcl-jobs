@@ -26,6 +26,13 @@ Refs macula-services/mcl-jobs#9.
   for the Erlang build, in a digest-pinned `macula-ci-otp` image on a hosted
   runner. It runs on every change, and the release waits on it.
   `mcl_jobs_advisories_tests` holds both workflows to that.
+- **Every procedure's reply shape is pinned** (Refs #4). One table in
+  `mcl_jobs_wire_replies_tests` names each procedure's reply keys, and each
+  page item's. The suite calls every responder against a real store and read
+  model, with args and reply through macula's CBOR codec as a client sees
+  them. It checks every refusal is `{reason}` alone, and that the README's
+  procedure table names the same keys. The 0.2.0 smoke run found the
+  `{profile: {...}}` mismatch this would have caught.
 - **No image from a red commit.** `build-and-push` now waits on
   `lint-and-test`, called on the commit it builds.
 

@@ -71,6 +71,11 @@ to its owner while withdrawn, whoever is asking. Narrowing the procedures to
 | `mcl-jobs/get_organisation_by_id` | `{"organisation_id"}` | `{organisation_id, name, initiated_by, initiated_at, archived}` |
 | `mcl-jobs/get_organisations_page` | `{"after"?, "limit"?}` | `{"organisations": [...], "next"?}`, active ones in id order |
 
+The Answer column is a contract a test holds to: `mcl_jobs_wire_replies_tests`
+calls every responder against a real read model and reads its reply through
+macula's own CBOR codec, and it fails when a reply's keys or a key named here
+change. Each page item carries the same keys as the matching `get_*_by_id`.
+
 **Who sees a profile:** the realm sees it when it is published and not
 archived; its owner also sees it unpublished. Anything else answers exactly as a
 profile that never existed (`not_found`, or absent from the page). One module,
