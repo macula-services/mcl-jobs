@@ -13,7 +13,10 @@ set -eu
 REGISTRY="${REGISTRY:?REGISTRY is not set, e.g. localhost:5000}"
 REPO="$REGISTRY/promote-latest-test"
 HERE=$(cd "$(dirname "$0")" && pwd)
-ACCEPT="application/vnd.oci.image.manifest.v1+json, application/vnd.docker.distribution.manifest.v2+json"
+# Indexes too: docker 29 on a hosted runner pushes an OCI index (the image
+# beside its attestation manifests), and a registry answers 404 for a reference
+# whose media type the request does not accept.
+ACCEPT="application/vnd.oci.image.manifest.v1+json, application/vnd.docker.distribution.manifest.v2+json, application/vnd.oci.image.index.v1+json, application/vnd.docker.distribution.manifest.list.v2+json"
 WORK=$(mktemp -d)
 trap 'rm -rf "$WORK"' EXIT
 fails=0
