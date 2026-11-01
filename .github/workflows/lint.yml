@@ -10,6 +10,8 @@ on:
     branches: [main]
   pull_request:
   workflow_dispatch:
+  # build-push.yml calls it, so no image is built from a red commit.
+  workflow_call:
 
 jobs:
   check:
@@ -46,3 +48,19 @@ jobs:
       - run: rebar3 lint
       - run: rebar3 eunit
       - run: rebar3 dialyzer
+
+  # scripts/promote_latest.sh, the one step that moves :latest, is only ever run
+  # by a release. This runs it on every change, against a registry of its own,
+  # so a broken promotion shows here and not on a tag (mcl-jobs#9).
+  promote-latest-copies-the-signed-digest:
+    runs-on: ["ubuntu-latest"]
+    services:
+      registry:
+        image: docker.io/library/registry:2@sha256:a3d8aaa63ed8681a604f1dea0aa03f100d5895b6a58ace528858a7b332415373
+        ports:
+          - 5000:5000
+    steps:
+      - uses: actions/checkout@v4
+      - run: scripts/promote_latest_test.sh
+        env:
+          REGISTRY: localhost:5000

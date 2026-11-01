@@ -5,6 +5,22 @@ All notable changes to this project are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+Refs macula-services/mcl-jobs#9.
+
+- **Only a signed release moves `:latest`.** A push to `main` used to publish
+  `:latest`, so anyone pulling it, `deploy/docker-compose.yml` included, got an
+  unreviewed tip of main. Now `main` publishes `:main` and `:<sha>`, a `v*` tag
+  publishes its version, and a new `promote-latest` job points `:latest` at
+  that digest only after `attest` has signed it, as a byte-for-byte copy of
+  the signed manifest. `scripts/image_tags.sh` names the tags each ref
+  publishes, and `mcl_jobs_image_channels_tests` holds the workflow to it;
+  `scripts/promote_latest_test.sh` proves the promotion against a local
+  registry on every change.
+- **No image from a red commit.** `build-and-push` now waits on
+  `lint-and-test`, called on the commit it builds.
+
 ## 0.4.0 - 2026-10-30
 
 Refs macula-services/mcl-om#42, the migration of the mcl-* services onto

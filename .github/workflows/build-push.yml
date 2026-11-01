@@ -1,9 +1,14 @@
 # Build the OCI image for mcl-jobs and push to the registry.
 #
-# TWO CHANNELS, AND ONLY A TAG DEPLOYS.
+# TWO CHANNELS, AND ONLY A SIGNED RELEASE MOVES :latest.
 #
-#   push to main : publishes :latest        <- a floating tag; the fleet instead pins a digest
-#   push of v*   : publishes :<semver> ONLY <- what macula-fleet pins and deploys
+#   push of v*   : publishes :<semver>, then :latest once attest signed it <- what macula-fleet pins and deploys
+#   push to main : publishes :main and :<sha>                              <- the tip, for trying; nothing follows it
+#
+# :latest is what anyone outside the fleet pulls, and what deploy/docker-compose.yml
+# runs, so it names a signed release and never an unreviewed tip of main
+# (mcl-jobs#9). scripts/image_tags.sh says which tags a ref publishes, and
+# mcl_jobs_image_channels_tests holds this file to it.
 #
 # The semver tags stay published so a bad release can be pinned back to a known
 # one. A green `v*` tag IS the deploy: macula-fleet's pin-releases workflow takes
@@ -33,7 +38,7 @@ on:
   workflow_dispatch:
 
 # ONE IMAGE BUILD IN FLIGHT PER REF. Without this, three quick commits run
-# three builds that finish in whatever order the runners please, and :latest
+# three builds that finish in whatever order the runners please, and :main
 # could end up naming the older one. A sibling service hit exactly that live.
 # A newer push to a branch or tag QUEUES behind the run in flight, never
 # cancels it: a cancelled run could already have pushed its image and not yet
@@ -55,8 +60,13 @@ jobs:
     with:
       runs-on: '["ubuntu-latest"]'
 
+  # NO IMAGE WHILE ITS OWN TESTS ARE RED. lint.yml, called on the commit this
+  # run builds, and the build waits on it (mcl-om#34).
+  test:
+    uses: ./.github/workflows/lint.yml
+
   build-and-push:
-    needs: guard
+    needs: [guard, test]
     runs-on: ["ubuntu-latest"]
     permissions:
       contents: read
@@ -95,19 +105,14 @@ jobs:
           export DOCKER_CONFIG="$RUNNER_TEMP/docker-config" REGISTRY_AUTH_FILE="$RUNNER_TEMP/auth.json"
           echo "$TOKEN" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
 
-      # Emits the COMPLETE tag list, so the condition governs all of it. ONLY
-      # MAIN FEEDS :latest AND ONLY A v* TAG FEEDS THE ARCHIVE: the workflow can
-      # be run by hand from any branch, and a branch build must never overwrite
-      # the deploy channel, so any other ref is refused, naming it.
+      # The COMPLETE tag list, from one script, so its one case governs all of
+      # it: a v* tag publishes its version only, main :main and :<sha>, and any
+      # other ref (the workflow can be run by hand from any branch) is refused,
+      # naming it. None of them is :latest; promote-latest moves that.
       - name: Set tags
         if: steps.gate.outputs.build == 'true'
         id: tag
-        run: |
-          case "${GITHUB_REF}" in
-            refs/tags/v*)    echo "tags=ghcr.io/macula-services/mcl-jobs:${GITHUB_REF#refs/tags/v}" >> "$GITHUB_OUTPUT" ;;
-            refs/heads/main) echo "tags=ghcr.io/macula-services/mcl-jobs:latest" >> "$GITHUB_OUTPUT" ;;
-            *) echo "::error::only main publishes :latest and only a v* tag publishes a version; refusing $GITHUB_REF"; exit 1 ;;
-          esac
+        run: scripts/image_tags.sh >> "$GITHUB_OUTPUT"
 
       # BUILT UNDER A TAG UNIQUE TO THIS RUN, then tagged for the registry and
       # pushed. A shared image store sees every runner's builds, and the run id
@@ -185,3 +190,24 @@ jobs:
       image: ghcr.io/macula-services/mcl-jobs
       digest: ${{ needs.build-and-push.outputs.digest }}
       runs-on: '["ubuntu-latest"]'
+
+  # :latest MOVES LAST, ONLY ON A v* TAG, AND ONLY ONCE attest HAS SIGNED AND
+  # ATTESTED THIS DIGEST. Anything following :latest in the window between push
+  # and signature would otherwise pull a digest nothing signed yet. The same
+  # manifest bytes go under :latest (scripts/promote_latest.sh, proven by
+  # scripts/promote_latest_test.sh in lint.yml), so :latest is the signed digest
+  # and not a re-wrapped copy of it.
+  promote-latest:
+    needs: [build-and-push, attest]
+    if: startsWith(github.ref, 'refs/tags/v') && needs.build-and-push.outputs.digest != ''
+    runs-on: ["ubuntu-latest"]
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Point :latest at the signed digest
+        env:
+          REGISTRY_USER: ${{ github.actor }}
+          REGISTRY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: scripts/promote_latest.sh ghcr.io/macula-services/mcl-jobs "${{ needs.build-and-push.outputs.digest }}"
