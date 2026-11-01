@@ -197,16 +197,37 @@ jobs:
   # manifest bytes go under :latest (scripts/promote_latest.sh, proven by
   # scripts/promote_latest_test.sh in lint.yml), so :latest is the signed digest
   # and not a re-wrapped copy of it.
+  #
+  # AND NEVER BACKWARDS. The build's concurrency group is per ref, so two tags
+  # build in parallel and finish in either order, and a patch to an older line
+  # finishes last by design. So promotions run one at a time, repository-wide,
+  # and each moves :latest only if its tag is the newest v* by version order
+  # (scripts/is_newest_release.sh); an older one leaves :latest alone. GitHub
+  # keeps one PENDING run per group, so a third promotion queued behind two
+  # cancels the waiting one: at worst :latest stays on an older signed release
+  # until the newest tag's promote-latest is re-run, never on a newer-then-older.
   promote-latest:
     needs: [build-and-push, attest]
     if: startsWith(github.ref, 'refs/tags/v') && needs.build-and-push.outputs.digest != ''
     runs-on: ["ubuntu-latest"]
+    concurrency:
+      group: promote-latest
+      cancel-in-progress: false
     permissions:
       contents: read
       packages: write
     steps:
+      # Every tag, so the newest one is known at the moment of promotion.
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Is this the newest release?
+        id: newest
+        run: |
+          git fetch --force --tags origin
+          scripts/is_newest_release.sh "${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
       - name: Point :latest at the signed digest
+        if: steps.newest.outputs.promote == 'true'
         env:
           REGISTRY_USER: ${{ github.actor }}
           REGISTRY_TOKEN: ${{ secrets.GITHUB_TOKEN }}

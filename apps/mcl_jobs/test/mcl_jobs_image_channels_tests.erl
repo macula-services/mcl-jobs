@@ -47,6 +47,32 @@ only_promote_latest_moves_latest_and_only_after_a_signed_release_test() ->
     ?assertMatch({match, _}, re:run(Promote, "^    needs: \\[build-and-push, attest\\]$", [multiline])),
     ?assertMatch({match, _}, re:run(Promote, "^    if: startsWith\\(github\\.ref, 'refs/tags/v'\\)", [multiline])).
 
+%% :latest NEVER MOVES BACKWARDS. Tags build in parallel and finish in any
+%% order, so only the newest v* by VERSION order promotes (v0.10.0 is newer
+%% than v0.9.0), and an older one, a late patch to an older line included,
+%% leaves :latest alone.
+only_the_newest_release_moves_latest_test() ->
+    Repo = repo_with_tags(["v0.4.0", "v0.5.0", "v0.9.0", "v0.10.0", "v0.4.1"]),
+    try
+        ?assertEqual({0, "promote=true"}, newest(Repo, "v0.10.0")),
+        ?assertEqual({0, "promote=false"}, newest(Repo, "v0.4.1")),
+        ?assertEqual({0, "promote=false"}, newest(Repo, "v0.9.0")),
+        ?assertEqual({0, "promote=false"}, newest(Repo, "v0.5.0"))
+    after
+        file:del_dir_r(Repo)
+    end.
+
+%% And the workflow asks it, with every tag fetched, one promotion at a time.
+promote_latest_is_serialised_and_asks_whether_it_is_newest_test() ->
+    Promote = proplists:get_value("promote-latest", jobs(workflow())),
+    ?assertMatch({match, _}, re:run(Promote, "^    concurrency:\\n      group: promote-latest\\n"
+                                             "      cancel-in-progress: false$", [multiline])),
+    ?assertMatch({match, _}, re:run(Promote, "git fetch --force --tags origin\\n\\s+"
+                                             "scripts/is_newest_release\\.sh ", [multiline])),
+    ?assertMatch({match, _}, re:run(Promote, "- name: Point :latest at the signed digest\\n"
+                                             "        if: steps\\.newest\\.outputs\\.promote == 'true'$",
+                                    [multiline])).
+
 %% No image while the service's own tests are red: the build waits on them.
 the_build_waits_on_the_tests_test() ->
     Build = proplists:get_value("build-and-push", jobs(workflow())),
@@ -55,11 +81,29 @@ the_build_waits_on_the_tests_test() ->
 %%------------------------------------------------------------------------------
 
 tags(Ref) ->
-    Cmd = "GITHUB_REF=" ++ Ref ++ " GITHUB_SHA=" ++ ?SHA ++ " sh "
-          ++ alongside("scripts/image_tags.sh") ++ " 2>&1; echo \"exit=$?\"",
+    run("GITHUB_REF=" ++ Ref ++ " GITHUB_SHA=" ++ ?SHA ++ " sh "
+        ++ alongside("scripts/image_tags.sh") ++ " 2>&1").
+
+%% Output and exit status of a shell command.
+run(Cmd0) ->
+    Cmd = Cmd0 ++ "; echo \"exit=$?\"",
     Lines = string:split(string:trim(os:cmd(Cmd)), "\n", all),
     {Body, ["exit=" ++ Status]} = lists:split(length(Lines) - 1, Lines),
     {list_to_integer(Status), lists:flatten(lists:join("\n", Body))}.
+
+%% A throwaway repository, one commit per tag, tagged in the order given.
+repo_with_tags(Tags) ->
+    Repo = filename:join(["/tmp", "mcl_jobs_image_channels_tests",
+                          integer_to_list(erlang:unique_integer([positive]))]),
+    ok = filelib:ensure_path(Repo),
+    Git = "git -C " ++ Repo ++ " -c user.name=test -c user.email=test@example.invalid ",
+    _ = os:cmd(Git ++ "init -q"),
+    [os:cmd(Git ++ "commit -q --allow-empty -m " ++ T ++ " && " ++ Git ++ "tag " ++ T) || T <- Tags],
+    Repo.
+
+newest(Repo, Tag) ->
+    run("cd " ++ Repo ++ " && sh " ++ alongside("scripts/is_newest_release.sh") ++ " " ++ Tag
+        ++ " 2>/dev/null").
 
 workflow() ->
     {ok, Text} = file:read_file(alongside(".github/workflows/build-push.yml")),
