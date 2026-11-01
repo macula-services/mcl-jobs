@@ -18,6 +18,9 @@ Refs macula-services/mcl-jobs#9.
   publishes, and `mcl_jobs_image_channels_tests` holds the workflow to it;
   `scripts/promote_latest_test.sh` proves the promotion against a local
   registry on every change.
+- **And `:latest` never moves backwards.** Tags build in parallel, so promotions
+  run one at a time, and only the newest `v*` by version order moves `:latest`
+  (`scripts/is_newest_release.sh`); a late patch to an older line leaves it alone.
 - **A known-vulnerable dependency cannot ship** (Refs #6). `lint-and-test`
   calls macula-ci-images' `dependency-advisories` workflow, pinned by commit,
   for the Erlang build, in a digest-pinned `macula-ci-otp` image on a hosted
